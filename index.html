@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>الاختبار الختامي - النباتات البذرية</title>
     <style>
-        /* جميع الأنماط السابقة كما هي - تم تضمينها من الكود السابق */
         * {
             margin: 0;
             padding: 0;
@@ -58,6 +57,10 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
+        }
+
+        .panorama-image img:hover {
+            transform: scale(1.02);
         }
 
         .input-group {
@@ -406,6 +409,10 @@
         .student-result-item {
             border-bottom: 1px solid #ddd;
             padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .teacher-pass { color: green; font-weight: bold; }
@@ -471,6 +478,14 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        .delete-btn {
+            background: #c0392b;
+            padding: 5px 12px;
+            font-size: 12px;
+            width: auto;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -491,37 +506,35 @@
         <span class="close-modal" id="closeModalBtn">&times;</span>
         <h2>📋 لوحة تحكم المعلمة - نتائج الطالبات</h2>
         <div id="teacherResultsList">
-            <div class="loading">⏳ جاري تحميل النتائج...</div>
+            <div class="loading">⏳ جاري تحميل النتائج من Firebase...</div>
         </div>
         <button id="refreshTeacherView" class="btn-secondary" style="margin-top: 10px;">تحديث النتائج 🔄</button>
         <button id="resetAllResultsBtn" style="background:#c0392b; margin-top: 10px;">🗑 إعادة ضبط جميع النتائج</button>
         <div style="margin-top: 15px; font-size: 12px; color: #666; text-align: center;">
-            💾 البيانات مخزنة في GitHub Gist | لحذف البيانات: اضغط "إعادة ضبط"
+            💾 البيانات مخزنة في Firebase Cloud | تحديث فوري
         </div>
     </div>
 </div>
 
-<script>
-    // ======================= إعدادات التخزين =======================
-    // استخدم GitHub Gist لتخزين البيانات - مجاني وموثوق
+<script type="module">
+    // ======================= Firebase Configuration =======================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     
-    // 🔴 هام جداً: قم بإنشاء Gist جديد وضع هذا الرابط
-    // خطوات إنشاء Gist:
-    // 1. سجل دخول GitHub
-    // 2. اذهب إلى https://gist.github.com
-    // 3. أنشئ Gist جديد باسم "quiz-results.json"
-    // 4. ضع المحتوى: []
-    // 5. انسخ Gist ID من الرابط (مثال: https://gist.github.com/username/abc123)
-    // 6. قم بإنشاء Token من Settings → Developer settings → Personal access tokens
-    // 7. ضع القيم أدناه
+    const firebaseConfig = {
+        apiKey: "AIzaSyBg3q3Xuh5c2_03snkKThBtR3sc80k-OW4",
+        authDomain: "quiz-app-b0339.firebaseapp.com",
+        projectId: "quiz-app-b0339",
+        storageBucket: "quiz-app-b0339.firebasestorage.app",
+        messagingSenderId: "798217786332",
+        appId: "1:798217786332:web:742058458be31599123519",
+        measurementId: "G-2401Q7Y9XD"
+    };
     
-    const GIST_ID = "YOUR_GIST_ID"; // ضع Gist ID هنا
-    const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // ضع GitHub Token هنا
-    
-    // بديل مؤقت: استخدام localStorage مع مشاركة عبر localStorageSync
-    // للاستخدام الفوري دون إعدادات، سنستخدم localStorage مع مزامنة يدوية
-    
-    const USE_GIST = false; // غيّر إلى true بعد إعداد Gist
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const resultsCollection = collection(db, "quiz_results");
     
     // ======================= بنك الأسئلة =======================
     const MCQ_BANK = [
@@ -654,8 +667,7 @@
     function playWarningSound() { playSound("Sound/warning.mp3", 0.6); }
     function playTimeoutSound() { playSound("Sound/timeout.mp3", 0.7); }
 
-    // ======================= وظائف التخزين =======================
-    const STORAGE_KEY = "quiz_results_data";
+    // ======================= وظائف Firebase =======================
     
     // عرض رسالة منبثقة
     function showToast(message) {
@@ -666,116 +678,66 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // تحميل النتائج
-    async function loadResults() {
-        // محاولة التحميل من localStorage أولاً
-        const stored = localStorage.getItem(STORAGE_KEY);
-        let results = [];
-        
-        if(stored) {
-            try {
-                results = JSON.parse(stored);
-            } catch(e) { results = []; }
-        }
-        
-        // إذا كان Gist مفعل، نحاول المزامنة
-        if(USE_GIST && GIST_ID !== "YOUR_GIST_ID") {
-            try {
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
-                const data = await response.json();
-                if(data.files && data.files['results.json']) {
-                    const cloudResults = JSON.parse(data.files['results.json'].content);
-                    // دمج النتائج من السحابة مع المحلية
-                    results = mergeResults(results, cloudResults);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
-                }
-            } catch(e) {
-                console.log("فشل التحميل من Gist، استخدام التخزين المحلي");
-            }
-        }
-        
-        return results;
-    }
-    
-    // حفظ النتائج
-    async function saveResults(results) {
-        // حفظ محلياً
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
-        
-        // حفظ في Gist إذا كان مفعلاً
-        if(USE_GIST && GITHUB_TOKEN !== "YOUR_GITHUB_TOKEN" && GIST_ID !== "YOUR_GIST_ID") {
-            try {
-                const content = {
-                    files: {
-                        'results.json': {
-                            content: JSON.stringify(results, null, 2)
-                        }
-                    }
-                };
-                
-                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(content)
-                });
-                showToast("✅ تم حفظ النتائج في السحابة");
-            } catch(e) {
-                console.log("فشل الحفظ في Gist");
-            }
-        }
-        
-        return true;
-    }
-    
-    // دمج النتائج
-    function mergeResults(local, cloud) {
-        const merged = [...cloud];
-        for(const item of local) {
-            const exists = merged.findIndex(r => r.studentName === item.studentName && r.timestamp === item.timestamp);
-            if(exists === -1) {
-                merged.push(item);
-            }
-        }
-        return merged;
-    }
-    
-    // إضافة أو تحديث نتيجة
-    async function addOrUpdateResult(studentName, score, total, percentage, answersDetail) {
-        let allResults = await loadResults();
-        const existingIndex = allResults.findIndex(r => r.studentName === studentName);
-        const newEntry = {
-            studentName: studentName,
-            score: score,
-            total: total,
-            percentage: percentage,
-            answers: answersDetail,
-            timestamp: new Date().toISOString()
-        };
-        
-        if(existingIndex !== -1) {
-            // تحديث النتيجة السابقة (آخر محاولة)
-            allResults[existingIndex] = newEntry;
-        } else {
-            allResults.push(newEntry);
-        }
-        
-        await saveResults(allResults);
-        showToast(`✅ تم حفظ نتيجة ${studentName}`);
-        return true;
-    }
-    
-    // إعادة ضبط جميع النتائج
-    async function resetAllResults() {
-        if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً. هل أنت متأكدة؟")) {
-            await saveResults([]);
-            showToast("🗑️ تم حذف جميع النتائج بنجاح");
-            if(document.getElementById("teacherResultsList")) await refreshTeacherModal();
+    // إضافة نتيجة جديدة إلى Firebase
+    async function addResultToFirebase(studentName, score, total, percentage, answersDetail) {
+        try {
+            const resultData = {
+                studentName: studentName,
+                score: score,
+                total: total,
+                percentage: percentage,
+                answers: answersDetail,
+                timestamp: new Date().toISOString(),
+                createdAt: new Date()
+            };
+            
+            await addDoc(resultsCollection, resultData);
+            showToast(`✅ تم حفظ نتيجة ${studentName} في Firebase`);
             return true;
+        } catch(error) {
+            console.error("خطأ في حفظ النتيجة:", error);
+            showToast("❌ فشل حفظ النتيجة، يرجى المحاولة مرة أخرى");
+            return false;
         }
-        return false;
+    }
+    
+    // تحميل جميع النتائج من Firebase
+    async function loadResultsFromFirebase() {
+        try {
+            const q = query(resultsCollection, orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            const results = [];
+            querySnapshot.forEach((doc) => {
+                results.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            return results;
+        } catch(error) {
+            console.error("خطأ في تحميل النتائج:", error);
+            return [];
+        }
+    }
+    
+    // حذف جميع النتائج من Firebase
+    async function deleteAllResults() {
+        try {
+            const querySnapshot = await getDocs(resultsCollection);
+            const batch = writeBatch(db);
+            
+            querySnapshot.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+            
+            await batch.commit();
+            showToast("🗑️ تم حذف جميع النتائج بنجاح");
+            return true;
+        } catch(error) {
+            console.error("خطأ في حذف النتائج:", error);
+            showToast("❌ فشل حذف النتائج");
+            return false;
+        }
     }
     
     // تحديث لوحة المعلمة
@@ -783,29 +745,38 @@
         const container = document.getElementById("teacherResultsList");
         if(!container) return;
         
-        container.innerHTML = '<div class="loading">⏳ جاري تحميل النتائج...</div>';
+        container.innerHTML = '<div class="loading">⏳ جاري تحميل النتائج من Firebase...</div>';
         
-        const allResults = await loadResults();
+        const allResults = await loadResultsFromFirebase();
         
         if(allResults.length === 0) {
             container.innerHTML = "<p>📭 لا توجد نتائج مسجلة بعد. بعد أن تؤدي أي طالبة الاختبار ستظهر هنا.</p>";
             return;
         }
         
-        let html = `<div><strong>📊 عدد الطالبات: ${allResults.length}</strong></div>`;
-        const sorted = [...allResults].reverse();
-        sorted.forEach(res => {
+        let html = `<div style="margin-bottom: 15px;"><strong>📊 عدد الطالبات: ${allResults.length}</strong></div>`;
+        
+        allResults.forEach(res => {
             const passClass = res.percentage >= 50 ? "teacher-pass" : "teacher-fail";
             const status = res.percentage >= 50 ? "ناجحة" : "دون المستوى";
+            const date = new Date(res.timestamp).toLocaleString('ar-EG');
+            
             html += `<div class="student-result-item">
-                        <div><strong>${res.studentName}</strong> - ${new Date(res.timestamp).toLocaleString('ar-EG')}</div>
-                        <div>⭐ ${res.score}/${res.total} (${res.percentage}%) <span class="${passClass}">${status}</span></div>
+                        <div style="flex: 1;">
+                            <strong>${res.studentName}</strong><br>
+                            <small style="font-size: 11px; color: #666;">${date}</small>
+                        </div>
+                        <div style="text-align: left;">
+                            ⭐ ${res.score}/${res.total} (${res.percentage}%)<br>
+                            <span class="${passClass}">${status}</span>
+                        </div>
                     </div>`;
         });
+        
         container.innerHTML = html;
     }
 
-    // ======================= باقي الكود =======================
+    // ======================= باقي كود الاختبار =======================
     let appState = {
         stage: "nameEntry",
         studentName: "",
@@ -982,7 +953,7 @@
                 <p>🔹 عند بداية كل سؤال سيتم تشغيل صوت تنبيه.</p>
                 <p>🔹 عند انتهاء الوقت سيتم احتساب السؤال خطأ.</p>
                 <p>🔹 درجة النجاح: <strong>50%</strong></p>
-                <p>💾 <strong>النتائج تحفظ تلقائياً</strong> وتظهر في لوحة المعلمة</p>
+                <p>💾 <strong>النتائج تحفظ تلقائياً في Firebase Cloud</strong> وتظهر فوراً في لوحة المعلمة</p>
             </div>
             <button id="startExamFromInstBtn">🚀 بدء الاختبار</button>
         `;
@@ -1137,7 +1108,8 @@
                     answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
                 });
                 
-                await addOrUpdateResult(appState.studentName, appState.score, total, percentage, answersDetail);
+                // حفظ النتيجة في Firebase
+                await addResultToFirebase(appState.studentName, appState.score, total, percentage, answersDetail);
                 
                 if(percentage >= 50) {
                     playSuccessSound();
@@ -1167,7 +1139,7 @@
                 <div class="score-badge">${percentage}%</div>
                 <p style="margin-top:12px; font-size:1.2rem;">${passed ? "✅ مبروك! اجتياز موفق 🌟" : "📚 دون المستوى، تحتاج مراجعة 💪"}</p>
             </div>
-            <div class="footer-note">✅ تم حفظ نتيجتك بنجاح. يمكن للمعلمة الاطلاع عليها في لوحة التحكم.</div>
+            <div class="footer-note">✅ تم حفظ نتيجتك في Firebase Cloud. يمكن للمعلمة الاطلاع عليها فوراً في لوحة التحكم.</div>
         `;
     }
 
@@ -1189,8 +1161,10 @@
         };
         document.getElementById("refreshTeacherView").onclick = refreshTeacherModal;
         document.getElementById("resetAllResultsBtn").onclick = async () => {
-            await resetAllResults();
-            refreshTeacherModal();
+            if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً من Firebase. هل أنت متأكدة؟")) {
+                await deleteAllResults();
+                refreshTeacherModal();
+            }
         };
         window.onclick = (e) => {
             const modal = document.getElementById("teacherModal");
