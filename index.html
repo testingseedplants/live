@@ -59,10 +59,6 @@
             transition: transform 0.3s ease;
         }
 
-        .panorama-image img:hover {
-            transform: scale(1.02);
-        }
-
         .input-group {
             margin-bottom: 1.5rem;
         }
@@ -474,17 +470,13 @@
             animation: slideIn 0.3s ease;
         }
 
+        .toast.error {
+            background: #c62828;
+        }
+
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
-        }
-
-        .delete-btn {
-            background: #c0392b;
-            padding: 5px 12px;
-            font-size: 12px;
-            width: auto;
-            margin: 0;
         }
     </style>
 </head>
@@ -669,10 +661,9 @@
 
     // ======================= وظائف Firebase =======================
     
-    // عرض رسالة منبثقة
-    function showToast(message) {
+    function showToast(message, isError = false) {
         const toast = document.createElement('div');
-        toast.className = 'toast';
+        toast.className = 'toast' + (isError ? ' error' : '');
         toast.textContent = message;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
@@ -691,12 +682,13 @@
                 createdAt: new Date()
             };
             
-            await addDoc(resultsCollection, resultData);
+            const docRef = await addDoc(resultsCollection, resultData);
+            console.log("تم حفظ النتيجة بنجاح، ID:", docRef.id);
             showToast(`✅ تم حفظ نتيجة ${studentName} في Firebase`);
             return true;
         } catch(error) {
             console.error("خطأ في حفظ النتيجة:", error);
-            showToast("❌ فشل حفظ النتيجة، يرجى المحاولة مرة أخرى");
+            showToast("❌ فشل حفظ النتيجة: " + error.message, true);
             return false;
         }
     }
@@ -713,9 +705,11 @@
                     ...doc.data()
                 });
             });
+            console.log("تم تحميل النتائج:", results.length, "نتيجة");
             return results;
         } catch(error) {
             console.error("خطأ في تحميل النتائج:", error);
+            showToast("❌ فشل تحميل النتائج: " + error.message, true);
             return [];
         }
     }
@@ -735,7 +729,7 @@
             return true;
         } catch(error) {
             console.error("خطأ في حذف النتائج:", error);
-            showToast("❌ فشل حذف النتائج");
+            showToast("❌ فشل حذف النتائج: " + error.message, true);
             return false;
         }
     }
@@ -961,10 +955,12 @@
 
     function attachInstructionsEvents() {
         const startBtn = document.getElementById("startExamFromInstBtn");
-        startBtn.onclick = () => {
-            appState.stage = "exam";
-            render();
-        };
+        if(startBtn) {
+            startBtn.onclick = () => {
+                appState.stage = "exam";
+                render();
+            };
+        }
     }
 
     function selectOption(value, element) {
@@ -1035,32 +1031,34 @@
     function attachQuestionEvents() {
         const submitBtn = document.getElementById("submitAnswerBtn");
         
-        submitBtn.onclick = () => {
-            if(!appState.selectedOptionValue) {
-                alert("❌ الرجاء اختيار إجابة قبل المتابعة");
-                return;
-            }
-            
-            stopTimer();
-            stopAllSounds();
-            
-            const currentQ = appState.questions[appState.currentQuestionIndex];
-            const isCorrect = (appState.selectedOptionValue === currentQ.correct);
-            
-            if(isCorrect) {
-                appState.score++;
-                appState.feedbackType = "correct";
-                playCorrectSound();
-            } else {
-                appState.feedbackType = "wrong";
-                playWrongSound();
-            }
-            
-            appState.answers[appState.currentQuestionIndex] = appState.selectedOptionValue;
-            appState.showFeedback = true;
-            appState.selectedOptionValue = null;
-            render();
-        };
+        if(submitBtn) {
+            submitBtn.onclick = () => {
+                if(!appState.selectedOptionValue) {
+                    alert("❌ الرجاء اختيار إجابة قبل المتابعة");
+                    return;
+                }
+                
+                stopTimer();
+                stopAllSounds();
+                
+                const currentQ = appState.questions[appState.currentQuestionIndex];
+                const isCorrect = (appState.selectedOptionValue === currentQ.correct);
+                
+                if(isCorrect) {
+                    appState.score++;
+                    appState.feedbackType = "correct";
+                    playCorrectSound();
+                } else {
+                    appState.feedbackType = "wrong";
+                    playWrongSound();
+                }
+                
+                appState.answers[appState.currentQuestionIndex] = appState.selectedOptionValue;
+                appState.showFeedback = true;
+                appState.selectedOptionValue = null;
+                render();
+            };
+        }
         
         window.selectOptionFn = selectOption;
     }
@@ -1095,35 +1093,37 @@
     function attachFeedbackEvents() {
         const nextBtn = document.getElementById("nextQuestionBtn");
         
-        nextBtn.onclick = async () => {
-            stopAllSounds();
-            appState.showFeedback = false;
-            appState.currentQuestionIndex++;
-            
-            if(appState.currentQuestionIndex >= appState.questions.length) {
-                const total = appState.questions.length;
-                const percentage = Math.round((appState.score / total) * 100);
-                const answersDetail = {};
-                appState.questions.forEach((q, idx) => {
-                    answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
-                });
+        if(nextBtn) {
+            nextBtn.onclick = async () => {
+                stopAllSounds();
+                appState.showFeedback = false;
+                appState.currentQuestionIndex++;
                 
-                // حفظ النتيجة في Firebase
-                await addResultToFirebase(appState.studentName, appState.score, total, percentage, answersDetail);
-                
-                if(percentage >= 50) {
-                    playSuccessSound();
+                if(appState.currentQuestionIndex >= appState.questions.length) {
+                    const total = appState.questions.length;
+                    const percentage = Math.round((appState.score / total) * 100);
+                    const answersDetail = {};
+                    appState.questions.forEach((q, idx) => {
+                        answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
+                    });
+                    
+                    // حفظ النتيجة في Firebase
+                    await addResultToFirebase(appState.studentName, appState.score, total, percentage, answersDetail);
+                    
+                    if(percentage >= 50) {
+                        playSuccessSound();
+                    } else {
+                        playFailSound();
+                    }
+                    
+                    appState.stage = "result";
+                    render();
                 } else {
-                    playFailSound();
+                    appState.selectedOptionValue = null;
+                    render();
                 }
-                
-                appState.stage = "result";
-                render();
-            } else {
-                appState.selectedOptionValue = null;
-                render();
-            }
-        };
+            };
+        }
     }
 
     function renderResult() {
@@ -1155,17 +1155,24 @@
     }
 
     function bindGlobalEvents() {
-        document.getElementById("teacherDashboardBtn").onclick = openTeacherModal;
-        document.getElementById("closeModalBtn").onclick = () => {
+        const teacherBtn = document.getElementById("teacherDashboardBtn");
+        const closeBtn = document.getElementById("closeModalBtn");
+        const refreshBtn = document.getElementById("refreshTeacherView");
+        const resetBtn = document.getElementById("resetAllResultsBtn");
+        
+        if(teacherBtn) teacherBtn.onclick = openTeacherModal;
+        if(closeBtn) closeBtn.onclick = () => {
             document.getElementById("teacherModal").style.display = "none";
         };
-        document.getElementById("refreshTeacherView").onclick = refreshTeacherModal;
-        document.getElementById("resetAllResultsBtn").onclick = async () => {
-            if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً من Firebase. هل أنت متأكدة؟")) {
-                await deleteAllResults();
-                refreshTeacherModal();
-            }
-        };
+        if(refreshBtn) refreshBtn.onclick = refreshTeacherModal;
+        if(resetBtn) {
+            resetBtn.onclick = async () => {
+                if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً من Firebase. هل أنت متأكدة؟")) {
+                    await deleteAllResults();
+                    refreshTeacherModal();
+                }
+            };
+        }
         window.onclick = (e) => {
             const modal = document.getElementById("teacherModal");
             if(e.target === modal) modal.style.display = "none";
