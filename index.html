@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>الاختبار الختامي - النباتات البذرية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .content-pane {
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1e3c72;
+            border-right: 6px solid #2e7d32;
+            padding-right: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panorama-image {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 32px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .panorama-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .panorama-image img:hover {
+            transform: scale(1.02);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f3a64;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+        }
+
+        button {
+            background: #2e7d32;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background: #1b5e20;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #3a6ea5;
+        }
+        
+        .instructions-box {
+            background: #fef9e6;
+            padding: 1.5rem;
+            border-radius: 32px;
+            margin: 1rem 0;
+            border-right: 5px solid #2e7d32;
+            line-height: 1.7;
+        }
+
+        .question-window {
+            background: white;
+            border-radius: 32px;
+            padding: 1.8rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #e9eef3;
+            position: relative;
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .circular-timer {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .circular-timer svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-bg {
+            stroke: #e0e0e0;
+            stroke-width: 8;
+            fill: none;
+        }
+
+        .timer-progress {
+            stroke: #4caf50;
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .timer-progress.warning {
+            stroke: #ff9800;
+        }
+
+        .timer-progress.danger {
+            stroke: #f44336;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .timer-text.warning {
+            color: #ff9800;
+        }
+
+        .timer-text.danger {
+            color: #f44336;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .question-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #0a2b44;
+        }
+
+        .question-image {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .question-image img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #e2e8f0;
+        }
+
+        .option-item:hover {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+            transform: scale(1.02);
+        }
+
+        .option-item.selected {
+            background: #2e7d32;
+            border-color: #2e7d32;
+        }
+
+        .option-item.selected label {
+            color: white;
+        }
+
+        .option-item input {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #2e7d32;
+        }
+
+        .option-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 60px;
+            padding: 2rem 3rem;
+            text-align: center;
+            min-width: 320px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .feedback-card.correct {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border: 3px solid #2e7d32;
+        }
+
+        .feedback-card.wrong {
+            background: linear-gradient(135deg, #feb2b2 0%, #ff6b6b 100%);
+            border: 3px solid #c62828;
+        }
+
+        .feedback-card.timeout {
+            background: linear-gradient(135deg, #ffb347 0%, #ff6b6b 100%);
+            border: 3px solid #e67e22;
+        }
+
+        .feedback-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-card p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .next-btn {
+            background: #1e3c72;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .timer-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .result-area {
+            background: linear-gradient(135deg, #e8f0ff, #d4e0f5);
+            border-radius: 40px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .score-badge {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e6f3f;
+        }
+
+        .teacher-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .teacher-btn {
+            background: #2c3e66;
+            width: auto;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 850px;
+            width: 90%;
+            max-height: 85vh;
+            border-radius: 48px;
+            padding: 1.8rem;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            background: #e2e8f0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .student-result-item {
+            border-bottom: 1px solid #ddd;
+            padding: 12px 0;
+        }
+
+        .teacher-pass { color: green; font-weight: bold; }
+        .teacher-fail { color: #b91c1c; font-weight: bold; }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 20px;
+            height: 10px;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            background: #2e7d32;
+            border-radius: 20px;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .footer-note {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 20px;
+            color: #5f6c80;
+        }
+
+        .page-footer {
+            text-align: center;
+            padding: 1rem 0 0.8rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            background: white;
+        }
+
+        .page-footer span {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="appContainer">
+    <div id="dynamicContent" class="content-pane"></div>
+    <div class="page-footer">
+        <span>✨</span> إعداد/ أ. شريفه الزهراني <span>✨</span>
+    </div>
+</div>
+
+<div class="teacher-panel">
+    <button id="teacherDashboardBtn" class="teacher-btn">📊 لوحة المعلمة</button>
+</div>
+
+<div id="teacherModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h2>📋 لوحة تحكم المعلمة - نتائج الطالبات</h2>
+        <div id="teacherResultsList">
+            <p>جاري التحميل...</p>
+        </div>
+        <button id="refreshTeacherView" class="btn-secondary" style="margin-top: 10px;">تحديث النتائج 🔄</button>
+        <button id="resetAllResultsBtn" style="background:#c0392b; margin-top: 10px;">🗑 إعادة ضبط جميع النتائج</button>
+    </div>
+</div>
+
+<script>
+    // ======================= بنك الأسئلة =======================
+    const MCQ_BANK = [
+        { text: "ما المقصود بالنباتات البذرية؟", options: ["نباتات لا تنتج بذور", "نباتات تتكاثر بالبذور", "نباتات تعيش في الماء", "نباتات طفيلية"], correct: "نباتات تتكاثر بالبذور", image: "IMG/1.jpg" },
+        { text: "أي مما يلي مثال على نبات بذري؟", options: ["السرخس", "الطحلب", "القمح", "الحزازيات"], correct: "القمح", image: "IMG/2.jpg" },
+        { text: "ماذا تنتج النباتات البذرية؟", options: ["أبواغ", "بذور", "خلايا فقط", "جذور فقط"], correct: "بذور", image: "IMG/3.jpg" },
+        { text: "أي جزء من النبات يتحول إلى بذرة؟", options: ["الزهرة", "البويضة", "الساق", "الورقة"], correct: "البويضة", image: "IMG/4.jpg" },
+        { text: "أي مما يلي من النباتات مغطاة البذور؟", options: ["الصنوبر", "القمح", "السرو", "العرعر"], correct: "القمح", image: "IMG/5.jpg" },
+        { text: "أي مما يلي من النباتات معراة البذور؟", options: ["التفاح", "القمح", "الصنوبر", "الورد"], correct: "الصنوبر", image: "IMG/6.jpg" },
+        { text: "أين توجد البذور في النباتات مغطاة البذور؟", options: ["داخل الثمار", "داخل الجذور", "داخل الأوراق", "خارج النبات"], correct: "داخل الثمار", image: "IMG/7.jpg" },
+        { text: "أي مما يلي جزء من أجزاء البذرة؟", options: ["الجنين", "الساق", "الورقة", "الثمرة"], correct: "الجنين", image: "IMG/8.jpg" },
+        { text: "ماذا تحتاج البذور للإنبات؟", options: ["الضوء فقط", "الماء فقط", "الماء والهواء والحرارة المناسبة", "التربة فقط"], correct: "الماء والهواء والحرارة المناسبة", image: "IMG/9.jpg" },
+        { text: "ما وظيفة الجذور في النبات؟", options: ["امتصاص الماء والأملاح", "صنع الغذاء", "التكاثر", "التنفس"], correct: "امتصاص الماء والأملاح", image: "IMG/10.jpg" },
+        { text: "أي جزء من النبات يصنع الغذاء؟", options: ["الجذر", "الورقة", "الساق", "البذرة"], correct: "الورقة", image: "IMG/11.jpg" },
+        { text: "عملية صنع الغذاء في النبات تسمى:", options: ["التنفس", "البناء الضوئي", "الهضم", "التلقيح"], correct: "البناء الضوئي", image: "IMG/12.jpg" },
+        { text: "أي مما يلي يساعد النبات على صنع الغذاء؟", options: ["الضوء", "الماء", "ثاني أكسيد الكربون", "جميع ما سبق"], correct: "جميع ما سبق", image: "IMG/13.jpg" },
+        { text: "أي جزء يحمل الأوراق والأزهار؟", options: ["الجذر", "الساق", "البذرة", "الثمرة"], correct: "الساق", image: "IMG/14.jpg" },
+        { text: "ماذا تسمى عملية انتقال حبوب اللقاح؟", options: ["الإنبات", "التلقيح", "البناء الضوئي", "التنفس"], correct: "التلقيح", image: "IMG/15.jpg" },
+        { text: "أي مما يلي مثال على نبات مزهر؟", options: ["القمح", "الصنوبر", "السرو", "العرعر"], correct: "القمح", image: "IMG/16.jpg" },
+        { text: "أي مما يلي ينتج ثمارًا؟", options: ["النباتات مغطاة البذور", "النباتات معراة البذور", "الطحالب", "الحزازيات"], correct: "النباتات مغطاة البذور", image: "IMG/17.jpg" },
+        { text: "الثمرة تتكون من:", options: ["الجذر", "الساق", "الزهرة", "الورقة"], correct: "الزهرة", image: "IMG/18.jpg" },
+        { text: "وظيفة الثمرة هي:", options: ["حماية البذور", "امتصاص الماء", "صنع الغذاء", "تثبيت النبات"], correct: "حماية البذور", image: "IMG/19.jpg" },
+        { text: "البذرة تنمو لتصبح:", options: ["زهرة", "نبات جديد", "ورقة", "جذور فقط"], correct: "نبات جديد", image: "IMG/20.jpg" },
+        { text: "أي جزء يثبت النبات في التربة؟", options: ["الجذر", "الساق", "الورقة", "الزهرة"], correct: "الجذر", image: "IMG/21.jpg" },
+        { text: "الصنوبر مثال على:", options: ["نبات معرى البذور", "نبات مغطى البذور", "طحلب", "سرخس"], correct: "نبات معرى البذور", image: "IMG/22.jpg" },
+        { text: "أي جزء ينقل الماء في النبات؟", options: ["الساق", "الجذر", "الزهرة", "الثمرة"], correct: "الساق", image: "IMG/23.jpg" },
+        { text: "ما الذي يحمي البذرة؟", options: ["الثمرة", "الورقة", "الجذر", "الساق"], correct: "الثمرة", image: "IMG/24.jpg" },
+        { text: "النباتات تحصل على ثاني أكسيد الكربون من:", options: ["الهواء", "الماء", "التربة", "الجذر"], correct: "الهواء", image: "IMG/25.jpg" },
+        { text: "المادة الخضراء في الورقة تسمى:", options: ["الكلوروفيل", "الجلوكوز", "البروتين", "النشا"], correct: "الكلوروفيل", image: "IMG/26.jpg" },
+        { text: "أي مما يلي جزء من الزهرة؟", options: ["البتلات", "الجذر", "الساق", "اللحاء"], correct: "البتلات", image: "IMG/27.jpg" },
+        { text: "النباتات تحتاج ضوء الشمس من أجل:", options: ["البناء الضوئي", "التكاثر", "امتصاص الماء", "نقل الغذاء"], correct: "البناء الضوئي", image: "IMG/28.jpg" },
+        { text: "الصنوبر ينتج بذوره في:", options: ["الأزهار", "المخاريط", "الأوراق", "الجذور"], correct: "المخاريط", image: "IMG/29.jpg" },
+        { text: "النباتات مغطاة البذور تسمى أيضًا:", options: ["النباتات الزهرية", "النباتات اللازهرية", "الطحالب", "الحزازيات"], correct: "النباتات الزهرية", image: "IMG/30.jpg" },
+        { text: "الثمرة تحتوي على:", options: ["أوراق", "بذور", "جذور", "ساق"], correct: "بذور", image: "IMG/31.jpg" },
+        { text: "أي مما يلي يساعد على انتشار البذور؟", options: ["الرياح", "الحيوانات", "الماء", "جميع ما سبق"], correct: "جميع ما سبق", image: "IMG/32.jpg" },
+        { text: "أي جزء من النبات يجذب الحشرات للتلقيح؟", options: ["البتلات", "الجذر", "الساق", "الورقة"], correct: "البتلات", image: "IMG/33.jpg" },
+        { text: "النباتات تحتاج الهواء من أجل:", options: ["التنفس", "البناء الضوئي", "النمو", "جميع ما سبق"], correct: "جميع ما سبق", image: "IMG/34.jpg" },
+        { text: "النباتات تحصل على الطاقة من:", options: ["الشمس", "التربة", "الماء", "الهواء"], correct: "الشمس", image: "IMG/35.jpg" }
+    ];
+
+    const TF_BANK = [
+        { text: "النباتات البذرية تتكاثر بالبذور", correct: "صحيح", image: "IMG/36.jpg" },
+        { text: "الصنوبر من النباتات مغطاة البذور", correct: "خطأ", image: "IMG/37.jpg" },
+        { text: "الجذور تمتص الماء والأملاح", correct: "صحيح", image: "IMG/38.jpg" },
+        { text: "الورقة تصنع الغذاء", correct: "صحيح", image: "IMG/39.jpg" },
+        { text: "البذور تحتاج الماء فقط للإنبات", correct: "خطأ", image: "IMG/40.jpg" },
+        { text: "النباتات مغطاة البذور تنتج ثمارًا", correct: "صحيح", image: "IMG/41.jpg" },
+        { text: "الثمرة تحمي البذور", correct: "صحيح", image: "IMG/42.jpg" },
+        { text: "الساق ينقل الماء والغذاء", correct: "صحيح", image: "IMG/43.jpg" },
+        { text: "الطحالب من النباتات البذرية", correct: "خطأ", image: "IMG/44.jpg" },
+        { text: "البتلات تجذب الحشرات", correct: "صحيح", image: "IMG/45.jpg" },
+        { text: "النباتات تحتاج الضوء للبناء الضوئي", correct: "صحيح", image: "IMG/46.jpg" },
+        { text: "البذرة تحتوي على جنين", correct: "صحيح", image: "IMG/47.jpg" },
+        { text: "النباتات معراة البذور تنتج ثمارًا", correct: "خطأ", image: "IMG/48.jpg" },
+        { text: "الهواء ضروري للنباتات", correct: "صحيح", image: "IMG/49.jpg" },
+        { text: "النبات يحصل على الطاقة من الشمس", correct: "صحيح", image: "IMG/50.jpg" }
+    ];
+
+    function shuffleOptionsWithAllLast(options) {
+        const allAboveIndex = options.findIndex(opt => opt === "جميع ما سبق");
+        let restOptions = [...options];
+        let allAbove = null;
+        
+        if (allAboveIndex !== -1) {
+            allAbove = restOptions[allAboveIndex];
+            restOptions = restOptions.filter((_, idx) => idx !== allAboveIndex);
+        }
+        
+        for (let i = restOptions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [restOptions[i], restOptions[j]] = [restOptions[j], restOptions[i]];
+        }
+        
+        if (allAbove) {
+            restOptions.push(allAbove);
+        }
+        return restOptions;
+    }
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function selectRandomQuestions() {
+        const shuffledMCQ = shuffleArray([...MCQ_BANK]);
+        const selectedMCQ = shuffledMCQ.slice(0, 4).map(q => {
+            const shuffledOptions = shuffleOptionsWithAllLast([...q.options]);
+            return { ...q, type: "mcq", options: shuffledOptions };
+        });
+        
+        const shuffledTF = shuffleArray([...TF_BANK]);
+        const selectedTF = shuffledTF.slice(0, 2).map(q => ({ ...q, type: "tf" }));
+        
+        return [...selectedMCQ, ...selectedTF];
+    }
+
+    // نظام الصوتيات المحسن مع إدارة التشغيل
+    let currentPlayingAudio = null;
+    
+    function stopAllSounds() {
+        if(currentPlayingAudio) {
+            currentPlayingAudio.pause();
+            currentPlayingAudio.currentTime = 0;
+            currentPlayingAudio = null;
+        }
+    }
+    
+    function playSound(soundFile, volume = 0.6) {
+        try {
+            stopAllSounds();
+            const audio = new Audio(soundFile);
+            audio.volume = volume;
+            currentPlayingAudio = audio;
+            audio.play().catch(e => console.log("صوت غير متاح:", soundFile, e));
+        } catch(e) {
+            console.log("تشغيل الصوت غير مدعوم");
+        }
+    }
+    
+    function playCountdownStart() {
+        playSound("Sound/countdown.mp3", 0.5);
+    }
+    
+    function playCorrectSound() {
+        playSound("Sound/correct.mp3", 0.7);
+    }
+    
+    function playWrongSound() {
+        playSound("Sound/wrong.mp3", 0.7);
+    }
+    
+    function playSuccessSound() {
+        playSound("Sound/success.mp3", 0.8);
+    }
+    
+    function playFailSound() {
+        playSound("Sound/fail.mp3", 0.7);
+    }
+    
+    function playWarningSound() {
+        playSound("Sound/warning.mp3", 0.6);
+    }
+    
+    function playTimeoutSound() {
+        playSound("Sound/timeout.mp3", 0.7);
+    }
+
+    const STORAGE_KEY = "teacher_exam_results_v9";
+
+    function loadAllResults() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(stored) {
+            try { return JSON.parse(stored); } catch(e) { return []; }
+        }
+        return [];
+    }
+
+    function saveAllResults(resultsArray) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resultsArray));
+    }
+
+    function addOrUpdateResult(studentName, score, total, percentage, answersDetail) {
+        let allResults = loadAllResults();
+        const existingIndex = allResults.findIndex(r => r.studentName === studentName);
+        const newEntry = {
+            studentName: studentName,
+            score: score,
+            total: total,
+            percentage: percentage,
+            answers: answersDetail,
+            timestamp: new Date().toISOString()
+        };
+        if(existingIndex !== -1) {
+            allResults[existingIndex] = newEntry;
+        } else {
+            allResults.push(newEntry);
+        }
+        saveAllResults(allResults);
+    }
+
+    function resetAllResults() {
+        if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً. هل أنت متأكدة؟")) {
+            localStorage.removeItem(STORAGE_KEY);
+            alert("تم إعادة ضبط جميع النتائج بنجاح!");
+            if(document.getElementById("teacherResultsList")) refreshTeacherModal();
+        }
+    }
+
+    let appState = {
+        stage: "nameEntry",
+        studentName: "",
+        questions: [],
+        currentQuestionIndex: 0,
+        answers: [],
+        score: 0,
+        showFeedback: false,
+        feedbackType: null,
+        selectedAnswer: null,
+        selectedOptionValue: null,
+        timer: null,
+        timeLeft: 40,
+        timerActive: false,
+        timeoutTriggered: false,
+        warningPlayed30: false,
+        warningPlayed10: false
+    };
+
+    function stopTimer() {
+        if(appState.timer) {
+            clearInterval(appState.timer);
+            appState.timer = null;
+        }
+        appState.timerActive = false;
+    }
+
+    function startTimer() {
+        stopTimer();
+        appState.timeLeft = 40;
+        appState.timerActive = true;
+        appState.timeoutTriggered = false;
+        appState.warningPlayed30 = false;
+        appState.warningPlayed10 = false;
+        
+        playCountdownStart();
+        
+        appState.timer = setInterval(() => {
+            if(!appState.timerActive || appState.showFeedback) return;
+            
+            appState.timeLeft--;
+            updateTimerDisplay();
+            
+            if(appState.timeLeft === 30 && !appState.warningPlayed30) {
+                playCountdownStart();
+                appState.warningPlayed30 = true;
+            }
+            
+            if(appState.timeLeft === 10 && !appState.warningPlayed10) {
+                playWarningSound();
+                appState.warningPlayed10 = true;
+            }
+            
+            if(appState.timeLeft <= 0) {
+                stopTimer();
+                if(!appState.timeoutTriggered && !appState.showFeedback) {
+                    appState.timeoutTriggered = true;
+                    appState.feedbackType = "timeout";
+                    appState.showFeedback = true;
+                    playTimeoutSound();
+                    render();
+                }
+            }
+        }, 1000);
+    }
+    
+    function updateTimerDisplay() {
+        const timerText = document.querySelector('.timer-text');
+        const timerProgress = document.querySelector('.timer-progress');
+        
+        if(timerText) {
+            timerText.textContent = appState.timeLeft;
+            
+            if(appState.timeLeft <= 10) {
+                timerText.classList.add('danger');
+                timerText.classList.remove('warning');
+                if(timerProgress) {
+                    timerProgress.classList.add('danger');
+                    timerProgress.classList.remove('warning');
+                }
+                const timerContainer = document.querySelector('.circular-timer');
+                if(timerContainer && appState.timeLeft <= 5 && appState.timeLeft > 0) {
+                    timerContainer.classList.add('timer-shake');
+                    setTimeout(() => timerContainer.classList.remove('timer-shake'), 300);
+                }
+            } else if(appState.timeLeft <= 20) {
+                timerText.classList.add('warning');
+                timerText.classList.remove('danger');
+                if(timerProgress) {
+                    timerProgress.classList.add('warning');
+                    timerProgress.classList.remove('danger');
+                }
+            } else {
+                timerText.classList.remove('warning', 'danger');
+                if(timerProgress) {
+                    timerProgress.classList.remove('warning', 'danger');
+                }
+            }
+        }
+        
+        if(timerProgress) {
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference * (1 - appState.timeLeft / 40);
+            timerProgress.style.strokeDashoffset = offset;
+        }
+    }
+
+    function render() {
+        const container = document.getElementById("dynamicContent");
+        if(appState.stage === "nameEntry") {
+            container.innerHTML = renderNameEntry();
+            attachNameEntryEvents();
+        } else if(appState.stage === "instructions") {
+            container.innerHTML = renderInstructions();
+            attachInstructionsEvents();
+        } else if(appState.stage === "exam") {
+            if(appState.showFeedback) {
+                container.innerHTML = renderFeedback();
+                attachFeedbackEvents();
+            } else {
+                container.innerHTML = renderCurrentQuestion();
+                attachQuestionEvents();
+                startTimer();
+            }
+        } else if(appState.stage === "result") {
+            container.innerHTML = renderResult();
+        }
+    }
+
+    function renderNameEntry() {
+        return `
+            <div class="panorama-image">
+                <img src="IMG/01.jpg" alt="بانوراما" onerror="this.style.display='none'">
+            </div>
+            <h1>📝 الاختبار الختامي - النباتات البذرية</h1>
+            <div class="input-group">
+                <label>✨ اسم الطالبة بالكامل:</label>
+                <input type="text" id="studentNameInput" placeholder="مثال: نورة سعود" autocomplete="off">
+            </div>
+            <button id="startExamBtn">▶ دخول الاختبار</button>
+        `;
+    }
+
+    function attachNameEntryEvents() {
+        const btn = document.getElementById("startExamBtn");
+        const nameInput = document.getElementById("studentNameInput");
+        btn.onclick = () => {
+            let name = nameInput.value.trim();
+            if(name === "") { 
+                alert("❌ الرجاء إدخال اسم الطالبة قبل بدء الاختبار");
+                nameInput.focus();
+                return; 
+            }
+            appState.studentName = name;
+            appState.questions = selectRandomQuestions();
+            appState.currentQuestionIndex = 0;
+            appState.answers = [];
+            appState.score = 0;
+            appState.showFeedback = false;
+            appState.stage = "instructions";
+            render();
+        };
+    }
+
+    function renderInstructions() {
+        return `
+            <h1>📖 تعليمات الاختبار</h1>
+            <div class="instructions-box">
+                <p>🔹 يتكون الاختبار من <strong>6 أسئلة</strong>:</p>
+                <ul style="margin-right: 1.5rem;">
+                    <li>4 أسئلة اختيار من متعدد</li>
+                    <li>2 سؤال صح/خطأ</li>
+                </ul>
+                <p>⏱️ <strong>مؤقت لكل سؤال: 40 ثانية</strong></p>
+                <p>🔹 عند بداية كل سؤال سيتم تشغيل صوت تنبيه.</p>
+                <p>🔹 عند انتهاء الوقت سيتم احتساب السؤال خطأ.</p>
+                <p>🔹 درجة النجاح: <strong>50%</strong></p>
+            </div>
+            <button id="startExamFromInstBtn">🚀 بدء الاختبار</button>
+        `;
+    }
+
+    function attachInstructionsEvents() {
+        const startBtn = document.getElementById("startExamFromInstBtn");
+        startBtn.onclick = () => {
+            appState.stage = "exam";
+            render();
+        };
+    }
+
+    function selectOption(value, element) {
+        document.querySelectorAll('.option-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        appState.selectedOptionValue = value;
+        const radio = element.querySelector('input');
+        if(radio) radio.checked = true;
+    }
+
+    function renderCurrentQuestion() {
+        const q = appState.questions[appState.currentQuestionIndex];
+        const qNum = appState.currentQuestionIndex + 1;
+        const total = appState.questions.length;
+        
+        let optionsHtml = '';
+        if(q.type === "mcq") {
+            optionsHtml = q.options.map(opt => `
+                <div class="option-item" onclick="window.selectOptionFn('${opt.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', this)">
+                    <input type="radio" name="question" value="${opt.replace(/"/g, '&quot;')}" id="opt_${opt.replace(/\s/g, '')}">
+                    <label for="opt_${opt.replace(/\s/g, '')}">${opt}</label>
+                </div>
+            `).join('');
+        } else {
+            optionsHtml = `
+                <div class="option-item" onclick="window.selectOptionFn('صحيح', this)">
+                    <input type="radio" name="question" value="صحيح" id="opt_true">
+                    <label for="opt_true">✅ صحيح</label>
+                </div>
+                <div class="option-item" onclick="window.selectOptionFn('خطأ', this)">
+                    <input type="radio" name="question" value="خطأ" id="opt_false">
+                    <label for="opt_false">❌ خطأ</label>
+                </div>
+            `;
+        }
+        
+        const imageHtml = q.image ? `<div class="question-image"><img src="${q.image}" alt="صورة توضيحية" onerror="this.style.display='none'"></div>` : '';
+        
+        const circumference = 2 * Math.PI * 45;
+        const offset = circumference;
+        
+        return `
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${(appState.currentQuestionIndex / total) * 100}%"></div>
+            </div>
+            <div class="question-window">
+                <div class="timer-container">
+                    <div class="circular-timer">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="timer-bg" stroke="#e0e0e0" stroke-width="8" fill="none"/>
+                            <circle cx="50" cy="50" r="45" class="timer-progress" stroke="#4caf50" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+                        </svg>
+                        <div class="timer-text">40</div>
+                    </div>
+                </div>
+                <div class="question-text">السؤال ${qNum} من ${total}<br>${q.text}</div>
+                ${imageHtml}
+                <div class="options" id="optionsContainer">
+                    ${optionsHtml}
+                </div>
+                <button id="submitAnswerBtn" style="margin-top: 1.5rem;">✓ تأكيد الإجابة</button>
+            </div>
+        `;
+    }
+
+    function attachQuestionEvents() {
+        const submitBtn = document.getElementById("submitAnswerBtn");
+        
+        submitBtn.onclick = () => {
+            if(!appState.selectedOptionValue) {
+                alert("❌ الرجاء اختيار إجابة قبل المتابعة");
+                return;
+            }
+            
+            stopTimer();
+            stopAllSounds();
+            
+            const currentQ = appState.questions[appState.currentQuestionIndex];
+            const isCorrect = (appState.selectedOptionValue === currentQ.correct);
+            
+            if(isCorrect) {
+                appState.score++;
+                appState.feedbackType = "correct";
+                playCorrectSound();
+            } else {
+                appState.feedbackType = "wrong";
+                playWrongSound();
+            }
+            
+            appState.answers[appState.currentQuestionIndex] = appState.selectedOptionValue;
+            appState.showFeedback = true;
+            appState.selectedOptionValue = null;
+            render();
+        };
+        
+        window.selectOptionFn = selectOption;
+    }
+
+    function renderFeedback() {
+        let title = "", message = "";
+        if(appState.feedbackType === "correct") {
+            const messages = ["احسنتي! 🎉", "رائع! 🌟", "ممتاز! 💪"];
+            title = "✓ إجابة صحيحة";
+            message = messages[Math.floor(Math.random() * messages.length)];
+        } else if(appState.feedbackType === "wrong") {
+            const messages = ["للأسف إجابة خاطئة 📚", "ليس صحيحاً، حاولي التركيز 💡", "إجابة غير صحيحة، راجعي الدرس 📖"];
+            title = "✗ إجابة خاطئة";
+            message = messages[Math.floor(Math.random() * messages.length)];
+        } else {
+            const messages = ["⏰ انتهى الوقت!", "⌛ للأسف لم تتمكني من الإجابة في الوقت المحدد", "🕐 المرة القادمة انتبهي للوقت"];
+            title = "⌛ انتهاء الوقت";
+            message = messages[Math.floor(Math.random() * messages.length)];
+        }
+        
+        return `
+            <div class="feedback-overlay" id="feedbackOverlay">
+                <div class="feedback-card ${appState.feedbackType}">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <button class="next-btn" id="nextQuestionBtn">▶ التالي</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function attachFeedbackEvents() {
+        const nextBtn = document.getElementById("nextQuestionBtn");
+        
+        nextBtn.onclick = () => {
+            stopAllSounds();
+            appState.showFeedback = false;
+            appState.currentQuestionIndex++;
+            
+            if(appState.currentQuestionIndex >= appState.questions.length) {
+                const total = appState.questions.length;
+                const percentage = Math.round((appState.score / total) * 100);
+                const answersDetail = {};
+                appState.questions.forEach((q, idx) => {
+                    answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
+                });
+                addOrUpdateResult(appState.studentName, appState.score, total, percentage, answersDetail);
+                
+                if(percentage >= 50) {
+                    playSuccessSound();
+                } else {
+                    playFailSound();
+                }
+                
+                appState.stage = "result";
+                render();
+            } else {
+                appState.selectedOptionValue = null;
+                render();
+            }
+        };
+    }
+
+    function renderResult() {
+        const total = appState.questions.length;
+        const percentage = Math.round((appState.score / total) * 100);
+        const passed = percentage >= 50;
+        
+        return `
+            <h1>🎉 نتيجة الاختبار الختامي</h1>
+            <div class="result-area">
+                <p><strong>الطالبة:</strong> ${appState.studentName}</p>
+                <p><strong>الدرجة النهائية:</strong> ${appState.score} / ${total}</p>
+                <div class="score-badge">${percentage}%</div>
+                <p style="margin-top:12px; font-size:1.2rem;">${passed ? "✅ مبروك! اجتياز موفق 🌟" : "📚 دون المستوى، تحتاج مراجعة 💪"}</p>
+            </div>
+            <div class="footer-note">تم حفظ النتيجة تلقائياً في سجل المعلمة.</div>
+        `;
+    }
+
+    function refreshTeacherModal() {
+        const container = document.getElementById("teacherResultsList");
+        if(!container) return;
+        const allResults = loadAllResults();
+        if(allResults.length === 0) {
+            container.innerHTML = "<p>لا توجد نتائج مسجلة بعد.</p>";
+            return;
+        }
+        let html = `<div><strong>عدد الطالبات: ${allResults.length}</strong></div>`;
+        const sorted = [...allResults].reverse();
+        sorted.forEach(res => {
+            const passClass = res.percentage >= 50 ? "teacher-pass" : "teacher-fail";
+            const status = res.percentage >= 50 ? "ناجحة" : "دون المستوى";
+            html += `<div class="student-result-item">
+                        <div><strong>${res.studentName}</strong> - ${new Date(res.timestamp).toLocaleString('ar-EG')}</div>
+                        <div>⭐ ${res.score}/${res.total} (${res.percentage}%) <span class="${passClass}">${status}</span></div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function openTeacherModal() {
+        const password = prompt("🔐 أدخل كلمة المرور للوصول إلى لوحة المعلمة:");
+        if(password === "226688") {
+            const modal = document.getElementById("teacherModal");
+            refreshTeacherModal();
+            modal.style.display = "flex";
+        } else {
+            alert("❌ كلمة المرور غير صحيحة! لا يمكنك الدخول.");
+        }
+    }
+
+    function bindGlobalEvents() {
+        document.getElementById("teacherDashboardBtn").onclick = openTeacherModal;
+        document.getElementById("closeModalBtn").onclick = () => {
+            document.getElementById("teacherModal").style.display = "none";
+        };
+        document.getElementById("refreshTeacherView").onclick = refreshTeacherModal;
+        document.getElementById("resetAllResultsBtn").onclick = resetAllResults;
+        window.onclick = (e) => {
+            const modal = document.getElementById("teacherModal");
+            if(e.target === modal) modal.style.display = "none";
+        };
+    }
+
+    function init() {
+        render();
+        bindGlobalEvents();
+    }
+    
+    init();
+</script>
+</body>
+</html>
