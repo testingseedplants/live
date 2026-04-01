@@ -502,6 +502,26 @@
 </div>
 
 <script>
+    // ======================= إعدادات التخزين =======================
+    // استخدم GitHub Gist لتخزين البيانات - مجاني وموثوق
+    
+    // 🔴 هام جداً: قم بإنشاء Gist جديد وضع هذا الرابط
+    // خطوات إنشاء Gist:
+    // 1. سجل دخول GitHub
+    // 2. اذهب إلى https://gist.github.com
+    // 3. أنشئ Gist جديد باسم "quiz-results.json"
+    // 4. ضع المحتوى: []
+    // 5. انسخ Gist ID من الرابط (مثال: https://gist.github.com/username/abc123)
+    // 6. قم بإنشاء Token من Settings → Developer settings → Personal access tokens
+    // 7. ضع القيم أدناه
+    
+    const GIST_ID = "YOUR_GIST_ID"; // ضع Gist ID هنا
+    const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // ضع GitHub Token هنا
+    
+    // بديل مؤقت: استخدام localStorage مع مشاركة عبر localStorageSync
+    // للاستخدام الفوري دون إعدادات، سنستخدم localStorage مع مزامنة يدوية
+    
+    const USE_GIST = false; // غيّر إلى true بعد إعداد Gist
     
     // ======================= بنك الأسئلة =======================
     const MCQ_BANK = [
@@ -646,7 +666,17 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
-    
+    // تحميل النتائج
+    async function loadResults() {
+        // محاولة التحميل من localStorage أولاً
+        const stored = localStorage.getItem(STORAGE_KEY);
+        let results = [];
+        
+        if(stored) {
+            try {
+                results = JSON.parse(stored);
+            } catch(e) { results = []; }
+        }
         
         // إذا كان Gist مفعل، نحاول المزامنة
         if(USE_GIST && GIST_ID !== "YOUR_GIST_ID") {
@@ -668,8 +698,112 @@
     }
     
     // حفظ النتائج
-   
+    async function saveResults(results) {
+        // حفظ محلياً
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+        
+        // حفظ في Gist إذا كان مفعلاً
+        if(USE_GIST && GITHUB_TOKEN !== "YOUR_GITHUB_TOKEN" && GIST_ID !== "YOUR_GIST_ID") {
+            try {
+                const content = {
+                    files: {
+                        'results.json': {
+                            content: JSON.stringify(results, null, 2)
+                        }
+                    }
+                };
+                
+                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(content)
+                });
+                showToast("✅ تم حفظ النتائج في السحابة");
+            } catch(e) {
+                console.log("فشل الحفظ في Gist");
+            }
+        }
+        
+        return true;
+    }
     
+    // دمج النتائج
+    function mergeResults(local, cloud) {
+        const merged = [...cloud];
+        for(const item of local) {
+            const exists = merged.findIndex(r => r.studentName === item.studentName && r.timestamp === item.timestamp);
+            if(exists === -1) {
+                merged.push(item);
+            }
+        }
+        return merged;
+    }
+    
+    // إضافة أو تحديث نتيجة
+    async function addOrUpdateResult(studentName, score, total, percentage, answersDetail) {
+        let allResults = await loadResults();
+        const existingIndex = allResults.findIndex(r => r.studentName === studentName);
+        const newEntry = {
+            studentName: studentName,
+            score: score,
+            total: total,
+            percentage: percentage,
+            answers: answersDetail,
+            timestamp: new Date().toISOString()
+        };
+        
+        if(existingIndex !== -1) {
+            // تحديث النتيجة السابقة (آخر محاولة)
+            allResults[existingIndex] = newEntry;
+        } else {
+            allResults.push(newEntry);
+        }
+        
+        await saveResults(allResults);
+        showToast(`✅ تم حفظ نتيجة ${studentName}`);
+        return true;
+    }
+    
+    // إعادة ضبط جميع النتائج
+    async function resetAllResults() {
+        if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً. هل أنت متأكدة؟")) {
+            await saveResults([]);
+            showToast("🗑️ تم حذف جميع النتائج بنجاح");
+            if(document.getElementById("teacherResultsList")) await refreshTeacherModal();
+            return true;
+        }
+        return false;
+    }
+    
+    // تحديث لوحة المعلمة
+    async function refreshTeacherModal() {
+        const container = document.getElementById("teacherResultsList");
+        if(!container) return;
+        
+        container.innerHTML = '<div class="loading">⏳ جاري تحميل النتائج...</div>';
+        
+        const allResults = await loadResults();
+        
+        if(allResults.length === 0) {
+            container.innerHTML = "<p>📭 لا توجد نتائج مسجلة بعد. بعد أن تؤدي أي طالبة الاختبار ستظهر هنا.</p>";
+            return;
+        }
+        
+        let html = `<div><strong>📊 عدد الطالبات: ${allResults.length}</strong></div>`;
+        const sorted = [...allResults].reverse();
+        sorted.forEach(res => {
+            const passClass = res.percentage >= 50 ? "teacher-pass" : "teacher-fail";
+            const status = res.percentage >= 50 ? "ناجحة" : "دون المستوى";
+            html += `<div class="student-result-item">
+                        <div><strong>${res.studentName}</strong> - ${new Date(res.timestamp).toLocaleString('ar-EG')}</div>
+                        <div>⭐ ${res.score}/${res.total} (${res.percentage}%) <span class="${passClass}">${status}</span></div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+    }
 
     // ======================= باقي الكود =======================
     let appState = {
@@ -1071,67 +1205,5 @@
     
     init();
 </script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBg3q3Xuh5c2_03snkKThBtR3sc80k-OW4",
-  authDomain: "quiz-app-b0339.firebaseapp.com",
-  projectId: "quiz-app-b0339",
-  storageBucket: "quiz-app-b0339.firebasestorage.app",
-  messagingSenderId: "798217786332",
-  appId: "1:798217786332:web:742058458be31599123519"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.db = db;
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.deleteDoc = deleteDoc;
-window.doc = doc;
-</script>
-
-async function addOrUpdateResult(studentName, score, total, percentage, answersDetail) {
-    await window.addDoc(window.collection(window.db, "results"), {
-        studentName,
-        score,
-        total,
-        percentage,
-        answers: answersDetail,
-        timestamp: new Date().toISOString()
-    });
-}
-
-    
-async function loadResults() {
-    const snapshot = await window.getDocs(window.collection(window.db, "results"));
-    const results = [];
-
-    snapshot.forEach(doc => {
-        results.push(doc.data());
-    });
-
-    return results;
-}
-
-async function resetAllResults() {
-    if(confirm("⚠️ سيتم حذف جميع النتائج، هل أنت متأكد؟")) {
-        const snapshot = await window.getDocs(window.collection(window.db, "results"));
-
-        for (const d of snapshot.docs) {
-            await window.deleteDoc(window.doc(window.db, "results", d.id));
-        }
-
-        showToast("🗑️ تم حذف جميع النتائج");
-        refreshTeacherModal();
-    }
-}
-    
-
-    
 </body>
 </html>
