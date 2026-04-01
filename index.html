@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>الاختبار الختامي - النباتات البذرية</title>
     <style>
-        /* جميع الأنماط (كما هي في الكود السابق) */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, sans-serif; }
         body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
         .container { max-width: 850px; width: 100%; background: white; border-radius: 48px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); overflow: hidden; }
@@ -98,10 +97,78 @@
 </div>
 
 <script type="module">
-    // استيراد دوال Firebase
-    import { initFirebase, saveResultToFirebase, loadResultsFromFirebase, deleteAllResultsFromFirebase } from './firebase.js';
-    initFirebase();
-
+    // ======================= Firebase Configuration & Functions =======================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBg3q3Xuh5c2_03snkKThBtR3sc80k-OW4",
+        authDomain: "quiz-app-b0339.firebaseapp.com",
+        projectId: "quiz-app-b0339",
+        storageBucket: "quiz-app-b0339.firebasestorage.app",
+        messagingSenderId: "798217786332",
+        appId: "1:798217786332:web:742058458be31599123519",
+        measurementId: "G-2401Q7Y9XD"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const resultsCollection = collection(db, "quiz_results");
+    
+    // Helper functions
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    async function saveResultToFirebase(studentName, score, total, percentage, answersDetail) {
+        try {
+            const resultData = {
+                studentName, score, total, percentage, answers: answersDetail,
+                timestamp: new Date().toISOString()
+            };
+            const docRef = await addDoc(resultsCollection, resultData);
+            console.log("✅ Result saved:", docRef.id);
+            return true;
+        } catch (error) {
+            console.error("❌ Error saving result:", error);
+            showToast("❌ فشل حفظ النتيجة: " + error.message, true);
+            return false;
+        }
+    }
+    
+    async function loadResultsFromFirebase() {
+        try {
+            const q = query(resultsCollection, orderBy("timestamp", "desc"));
+            const snapshot = await getDocs(q);
+            const results = [];
+            snapshot.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+            return results;
+        } catch (error) {
+            console.error("❌ Error loading results:", error);
+            return [];
+        }
+    }
+    
+    async function deleteAllResultsFromFirebase() {
+        try {
+            const snapshot = await getDocs(resultsCollection);
+            const batch = writeBatch(db);
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            console.log("✅ All results deleted");
+            showToast("🗑️ تم حذف جميع النتائج");
+            return true;
+        } catch (error) {
+            console.error("❌ Error deleting results:", error);
+            showToast("❌ فشل حذف النتائج", true);
+            return false;
+        }
+    }
+    
     // ======================= بنك الأسئلة =======================
     const MCQ_BANK = [
         { text: "ما المقصود بالنباتات البذرية؟", options: ["نباتات لا تنتج بذور", "نباتات تتكاثر بالبذور", "نباتات تعيش في الماء", "نباتات طفيلية"], correct: "نباتات تتكاثر بالبذور", image: "IMG/1.jpg" },
@@ -159,7 +226,6 @@
         { text: "النبات يحصل على الطاقة من الشمس", correct: "صحيح", image: "IMG/50.jpg" }
     ];
 
-    // دوال الخلط والاختيار العشوائي
     function shuffleOptionsWithAllLast(options) {
         const allAboveIndex = options.findIndex(opt => opt === "جميع ما سبق");
         let restOptions = [...options];
@@ -207,7 +273,7 @@
     function playWarningSound() { playSound("Sound/warning.mp3", 0.6); }
     function playTimeoutSound() { playSound("Sound/timeout.mp3", 0.7); }
 
-    // ======================= حالة التطبيق =======================
+    // حالة التطبيق
     let appState = {
         stage: "nameEntry",
         studentName: "",
@@ -275,7 +341,6 @@
         }
     }
 
-    // وظائف العرض (render)
     function render() {
         const container = document.getElementById("dynamicContent");
         if(appState.stage === "nameEntry") {
@@ -351,7 +416,6 @@
         console.log("nextQuestion: بعد الزيادة", appState.currentQuestionIndex);
         
         if (appState.currentQuestionIndex >= appState.questions.length) {
-            // نهاية الاختبار
             console.log("انتهى الاختبار، بدء حفظ النتيجة...");
             const total = appState.questions.length;
             const percentage = Math.round((appState.score / total) * 100);
@@ -375,7 +439,6 @@
             if (percentage >= 50) playSuccessSound();
             else playFailSound();
             
-            // تغيير المرحلة وإعادة العرض
             appState.stage = "result";
             console.log("الانتقال إلى صفحة النتيجة");
             render();
@@ -491,15 +554,6 @@
             </div>
             <div class="footer-note">✅ تم حفظ نتيجتك في Firebase Cloud. يمكن للمعلمة الاطلاع عليها فوراً.</div>
         `;
-    }
-
-    // دوال مساعدة للرسائل
-    function showToast(message, isError = false) {
-        const toast = document.createElement('div');
-        toast.className = 'toast' + (isError ? ' error' : '');
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
     }
 
     // دوال لوحة المعلمة
