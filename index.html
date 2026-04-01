@@ -19,7 +19,6 @@
             justify-content: center;
             align-items: center;
             padding: 2rem 1rem;
-            position: relative;
         }
 
         .container {
@@ -56,7 +55,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
         }
 
         .input-group {
@@ -202,7 +200,6 @@
             max-width: 100%;
             max-height: 250px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             object-fit: cover;
         }
 
@@ -245,7 +242,6 @@
             height: 20px;
             margin: 0;
             cursor: pointer;
-            accent-color: #2e7d32;
         }
 
         .option-item label {
@@ -254,7 +250,6 @@
             cursor: pointer;
             flex: 1;
             font-size: 1rem;
-            line-height: 1.4;
         }
 
         .feedback-overlay {
@@ -362,6 +357,9 @@
             padding: 12px 24px;
             border-radius: 60px;
             font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            border: none;
         }
 
         .modal {
@@ -443,7 +441,6 @@
             font-size: 0.9rem;
             color: #94a3b8;
             font-weight: 500;
-            letter-spacing: 0.5px;
             background: white;
         }
 
@@ -503,7 +500,7 @@
         <button id="refreshTeacherView" class="btn-secondary" style="margin-top: 10px;">تحديث النتائج 🔄</button>
         <button id="resetAllResultsBtn" style="background:#c0392b; margin-top: 10px;">🗑 إعادة ضبط جميع النتائج</button>
         <div style="margin-top: 15px; font-size: 12px; color: #666; text-align: center;">
-            💾 البيانات مخزنة في Firebase Cloud | تحديث فوري
+            💾 البيانات مخزنة في Firebase Cloud
         </div>
     </div>
 </div>
@@ -511,7 +508,7 @@
 <script type="module">
     // ======================= Firebase Configuration =======================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     
     const firebaseConfig = {
         apiKey: "AIzaSyBg3q3Xuh5c2_03snkKThBtR3sc80k-OW4",
@@ -523,7 +520,6 @@
         measurementId: "G-2401Q7Y9XD"
     };
     
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const resultsCollection = collection(db, "quiz_results");
@@ -585,7 +581,6 @@
         { text: "النبات يحصل على الطاقة من الشمس", correct: "صحيح", image: "IMG/50.jpg" }
     ];
 
-    // دوال المساعدة
     function shuffleOptionsWithAllLast(options) {
         const allAboveIndex = options.findIndex(opt => opt === "جميع ما سبق");
         let restOptions = [...options];
@@ -645,10 +640,8 @@
             const audio = new Audio(soundFile);
             audio.volume = volume;
             currentPlayingAudio = audio;
-            audio.play().catch(e => console.log("صوت غير متاح:", soundFile, e));
-        } catch(e) {
-            console.log("تشغيل الصوت غير مدعوم");
-        }
+            audio.play().catch(e => console.log("صوت غير متاح:", soundFile));
+        } catch(e) {}
     }
     
     function playCountdownStart() { playSound("Sound/countdown.mp3", 0.5); }
@@ -669,7 +662,6 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // إضافة نتيجة جديدة إلى Firebase
     async function addResultToFirebase(studentName, score, total, percentage, answersDetail) {
         try {
             const resultData = {
@@ -678,99 +670,77 @@
                 total: total,
                 percentage: percentage,
                 answers: answersDetail,
-                timestamp: new Date().toISOString(),
-                createdAt: new Date()
+                timestamp: new Date().toISOString()
             };
             
             const docRef = await addDoc(resultsCollection, resultData);
-            console.log("تم حفظ النتيجة بنجاح، ID:", docRef.id);
-            showToast(`✅ تم حفظ نتيجة ${studentName} في Firebase`);
+            console.log("✅ تم حفظ النتيجة:", docRef.id);
+            showToast(`✅ تم حفظ نتيجة ${studentName}`);
             return true;
         } catch(error) {
-            console.error("خطأ في حفظ النتيجة:", error);
+            console.error("❌ خطأ في حفظ النتيجة:", error);
             showToast("❌ فشل حفظ النتيجة: " + error.message, true);
             return false;
         }
     }
     
-    // تحميل جميع النتائج من Firebase
     async function loadResultsFromFirebase() {
         try {
             const q = query(resultsCollection, orderBy("timestamp", "desc"));
             const querySnapshot = await getDocs(q);
             const results = [];
             querySnapshot.forEach((doc) => {
-                results.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
+                results.push({ id: doc.id, ...doc.data() });
             });
-            console.log("تم تحميل النتائج:", results.length, "نتيجة");
+            console.log("📊 تم تحميل النتائج:", results.length);
             return results;
         } catch(error) {
-            console.error("خطأ في تحميل النتائج:", error);
-            showToast("❌ فشل تحميل النتائج: " + error.message, true);
+            console.error("❌ خطأ في تحميل النتائج:", error);
             return [];
         }
     }
     
-    // حذف جميع النتائج من Firebase
     async function deleteAllResults() {
         try {
             const querySnapshot = await getDocs(resultsCollection);
             const batch = writeBatch(db);
-            
-            querySnapshot.forEach((doc) => {
-                batch.delete(doc.ref);
-            });
-            
+            querySnapshot.forEach((doc) => batch.delete(doc.ref));
             await batch.commit();
-            showToast("🗑️ تم حذف جميع النتائج بنجاح");
+            showToast("🗑️ تم حذف جميع النتائج");
             return true;
         } catch(error) {
-            console.error("خطأ في حذف النتائج:", error);
-            showToast("❌ فشل حذف النتائج: " + error.message, true);
+            console.error("❌ خطأ في حذف النتائج:", error);
+            showToast("❌ فشل حذف النتائج", true);
             return false;
         }
     }
     
-    // تحديث لوحة المعلمة
     async function refreshTeacherModal() {
         const container = document.getElementById("teacherResultsList");
         if(!container) return;
         
-        container.innerHTML = '<div class="loading">⏳ جاري تحميل النتائج من Firebase...</div>';
-        
+        container.innerHTML = '<div class="loading">⏳ جاري تحميل النتائج...</div>';
         const allResults = await loadResultsFromFirebase();
         
         if(allResults.length === 0) {
-            container.innerHTML = "<p>📭 لا توجد نتائج مسجلة بعد. بعد أن تؤدي أي طالبة الاختبار ستظهر هنا.</p>";
+            container.innerHTML = "<p>📭 لا توجد نتائج مسجلة بعد.</p>";
             return;
         }
         
         let html = `<div style="margin-bottom: 15px;"><strong>📊 عدد الطالبات: ${allResults.length}</strong></div>`;
-        
         allResults.forEach(res => {
             const passClass = res.percentage >= 50 ? "teacher-pass" : "teacher-fail";
             const status = res.percentage >= 50 ? "ناجحة" : "دون المستوى";
             const date = new Date(res.timestamp).toLocaleString('ar-EG');
-            
             html += `<div class="student-result-item">
-                        <div style="flex: 1;">
-                            <strong>${res.studentName}</strong><br>
-                            <small style="font-size: 11px; color: #666;">${date}</small>
-                        </div>
-                        <div style="text-align: left;">
-                            ⭐ ${res.score}/${res.total} (${res.percentage}%)<br>
-                            <span class="${passClass}">${status}</span>
-                        </div>
+                        <div><strong>${res.studentName}</strong><br><small style="font-size: 11px;">${date}</small></div>
+                        <div>⭐ ${res.score}/${res.total} (${res.percentage}%)<br><span class="${passClass}">${status}</span></div>
                     </div>`;
         });
-        
         container.innerHTML = html;
     }
 
-    // ======================= باقي كود الاختبار =======================
+    // ======================= كود الاختبار =======================
     let appState = {
         stage: "nameEntry",
         studentName: "",
@@ -783,10 +753,7 @@
         selectedOptionValue: null,
         timer: null,
         timeLeft: 40,
-        timerActive: false,
-        timeoutTriggered: false,
-        warningPlayed30: false,
-        warningPlayed10: false
+        timerActive: false
     };
 
     function stopTimer() {
@@ -801,9 +768,7 @@
         stopTimer();
         appState.timeLeft = 40;
         appState.timerActive = true;
-        appState.timeoutTriggered = false;
-        appState.warningPlayed30 = false;
-        appState.warningPlayed10 = false;
+        let warning30 = false, warning10 = false;
         
         playCountdownStart();
         
@@ -813,20 +778,18 @@
             appState.timeLeft--;
             updateTimerDisplay();
             
-            if(appState.timeLeft === 30 && !appState.warningPlayed30) {
+            if(appState.timeLeft === 30 && !warning30) {
                 playCountdownStart();
-                appState.warningPlayed30 = true;
+                warning30 = true;
             }
-            
-            if(appState.timeLeft === 10 && !appState.warningPlayed10) {
+            if(appState.timeLeft === 10 && !warning10) {
                 playWarningSound();
-                appState.warningPlayed10 = true;
+                warning10 = true;
             }
             
             if(appState.timeLeft <= 0) {
                 stopTimer();
-                if(!appState.timeoutTriggered && !appState.showFeedback) {
-                    appState.timeoutTriggered = true;
+                if(!appState.showFeedback) {
                     appState.feedbackType = "timeout";
                     appState.showFeedback = true;
                     playTimeoutSound();
@@ -839,41 +802,25 @@
     function updateTimerDisplay() {
         const timerText = document.querySelector('.timer-text');
         const timerProgress = document.querySelector('.timer-progress');
-        
-        if(timerText) {
-            timerText.textContent = appState.timeLeft;
-            
-            if(appState.timeLeft <= 10) {
-                timerText.classList.add('danger');
-                timerText.classList.remove('warning');
-                if(timerProgress) {
-                    timerProgress.classList.add('danger');
-                    timerProgress.classList.remove('warning');
-                }
-                const timerContainer = document.querySelector('.circular-timer');
-                if(timerContainer && appState.timeLeft <= 5 && appState.timeLeft > 0) {
-                    timerContainer.classList.add('timer-shake');
-                    setTimeout(() => timerContainer.classList.remove('timer-shake'), 300);
-                }
-            } else if(appState.timeLeft <= 20) {
-                timerText.classList.add('warning');
-                timerText.classList.remove('danger');
-                if(timerProgress) {
-                    timerProgress.classList.add('warning');
-                    timerProgress.classList.remove('danger');
-                }
-            } else {
-                timerText.classList.remove('warning', 'danger');
-                if(timerProgress) {
-                    timerProgress.classList.remove('warning', 'danger');
-                }
-            }
-        }
-        
+        if(timerText) timerText.textContent = appState.timeLeft;
         if(timerProgress) {
             const circumference = 2 * Math.PI * 45;
             const offset = circumference * (1 - appState.timeLeft / 40);
             timerProgress.style.strokeDashoffset = offset;
+            
+            // تغيير اللون حسب الوقت
+            if(appState.timeLeft <= 10) {
+                timerProgress.classList.add('danger');
+                timerProgress.classList.remove('warning');
+                if(timerText) timerText.classList.add('danger');
+            } else if(appState.timeLeft <= 20) {
+                timerProgress.classList.add('warning');
+                timerProgress.classList.remove('danger');
+                if(timerText) timerText.classList.add('warning');
+            } else {
+                timerProgress.classList.remove('warning', 'danger');
+                if(timerText) timerText.classList.remove('warning', 'danger');
+            }
         }
     }
 
@@ -881,17 +828,32 @@
         const container = document.getElementById("dynamicContent");
         if(appState.stage === "nameEntry") {
             container.innerHTML = renderNameEntry();
-            attachNameEntryEvents();
+            document.getElementById("startExamBtn")?.addEventListener("click", startExam);
         } else if(appState.stage === "instructions") {
             container.innerHTML = renderInstructions();
-            attachInstructionsEvents();
+            document.getElementById("startExamFromInstBtn")?.addEventListener("click", () => {
+                appState.stage = "exam";
+                render();
+            });
         } else if(appState.stage === "exam") {
             if(appState.showFeedback) {
                 container.innerHTML = renderFeedback();
-                attachFeedbackEvents();
+                const nextBtn = document.getElementById("nextQuestionBtn");
+                if(nextBtn) {
+                    // إزالة أي أحداث سابقة
+                    const newNextBtn = nextBtn.cloneNode(true);
+                    nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+                    newNextBtn.addEventListener("click", nextQuestion);
+                }
             } else {
                 container.innerHTML = renderCurrentQuestion();
-                attachQuestionEvents();
+                document.getElementById("submitAnswerBtn")?.addEventListener("click", submitAnswer);
+                document.querySelectorAll('.option-item').forEach(el => {
+                    el.addEventListener("click", () => {
+                        const value = el.getAttribute("data-value");
+                        selectOption(value, el);
+                    });
+                });
                 startTimer();
             }
         } else if(appState.stage === "result") {
@@ -899,184 +861,181 @@
         }
     }
 
+    function startExam() {
+        const nameInput = document.getElementById("studentNameInput");
+        let name = nameInput.value.trim();
+        if(name === "") { 
+            alert("❌ الرجاء إدخال اسم الطالبة");
+            return; 
+        }
+        appState.studentName = name;
+        appState.questions = selectRandomQuestions();
+        appState.currentQuestionIndex = 0;
+        appState.answers = [];
+        appState.score = 0;
+        appState.showFeedback = false;
+        appState.stage = "instructions";
+        render();
+    }
+
+    function selectOption(value, element) {
+        document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+        element.classList.add('selected');
+        appState.selectedOptionValue = value;
+        // تحديث الراديو
+        const radio = element.querySelector('input');
+        if(radio) radio.checked = true;
+    }
+
+    function submitAnswer() {
+        if(!appState.selectedOptionValue) {
+            alert("❌ الرجاء اختيار إجابة");
+            return;
+        }
+        
+        stopTimer();
+        stopAllSounds();
+        
+        const currentQ = appState.questions[appState.currentQuestionIndex];
+        const isCorrect = (appState.selectedOptionValue === currentQ.correct);
+        
+        if(isCorrect) {
+            appState.score++;
+            appState.feedbackType = "correct";
+            playCorrectSound();
+        } else {
+            appState.feedbackType = "wrong";
+            playWrongSound();
+        }
+        
+        appState.answers[appState.currentQuestionIndex] = appState.selectedOptionValue;
+        appState.showFeedback = true;
+        appState.selectedOptionValue = null;
+        render();
+    }
+
+    async function nextQuestion() {
+        console.log("nextQuestion تم استدعاؤها - السؤال الحالي:", appState.currentQuestionIndex);
+        
+        stopAllSounds();
+        appState.showFeedback = false;
+        
+        // الانتقال للسؤال التالي
+        appState.currentQuestionIndex++;
+        console.log("الانتقال إلى السؤال رقم:", appState.currentQuestionIndex);
+        
+        // التحقق من انتهاء الاختبار
+        if(appState.currentQuestionIndex >= appState.questions.length) {
+            console.log("انتهى الاختبار، بدء حفظ النتيجة...");
+            
+            const total = appState.questions.length;
+            const percentage = Math.round((appState.score / total) * 100);
+            const answersDetail = {};
+            appState.questions.forEach((q, idx) => {
+                answersDetail[idx] = { 
+                    question: q.text, 
+                    userAnswer: appState.answers[idx] || "انتهى الوقت", 
+                    correctAnswer: q.correct 
+                };
+            });
+            
+            // حفظ النتيجة في Firebase
+            await addResultToFirebase(appState.studentName, appState.score, total, percentage, answersDetail);
+            
+            if(percentage >= 50) playSuccessSound();
+            else playFailSound();
+            
+            appState.stage = "result";
+            render();
+        } else {
+            console.log("الانتقال للسؤال التالي");
+            appState.selectedOptionValue = null;
+            render();
+        }
+    }
+
     function renderNameEntry() {
         return `
-            <div class="panorama-image">
-                <img src="IMG/01.jpg" alt="بانوراما" onerror="this.style.display='none'">
-            </div>
+            <div class="panorama-image"><img src="IMG/01.jpg" alt="بانوراما" onerror="this.style.display='none'"></div>
             <h1>📝 الاختبار الختامي - النباتات البذرية</h1>
             <div class="input-group">
                 <label>✨ اسم الطالبة بالكامل:</label>
-                <input type="text" id="studentNameInput" placeholder="مثال: نورة سعود" autocomplete="off">
+                <input type="text" id="studentNameInput" placeholder="مثال: نورة سعود">
             </div>
             <button id="startExamBtn">▶ دخول الاختبار</button>
         `;
-    }
-
-    function attachNameEntryEvents() {
-        const btn = document.getElementById("startExamBtn");
-        const nameInput = document.getElementById("studentNameInput");
-        btn.onclick = () => {
-            let name = nameInput.value.trim();
-            if(name === "") { 
-                alert("❌ الرجاء إدخال اسم الطالبة قبل بدء الاختبار");
-                nameInput.focus();
-                return; 
-            }
-            appState.studentName = name;
-            appState.questions = selectRandomQuestions();
-            appState.currentQuestionIndex = 0;
-            appState.answers = [];
-            appState.score = 0;
-            appState.showFeedback = false;
-            appState.stage = "instructions";
-            render();
-        };
     }
 
     function renderInstructions() {
         return `
             <h1>📖 تعليمات الاختبار</h1>
             <div class="instructions-box">
-                <p>🔹 يتكون الاختبار من <strong>6 أسئلة</strong>:</p>
-                <ul style="margin-right: 1.5rem;">
-                    <li>4 أسئلة اختيار من متعدد</li>
-                    <li>2 سؤال صح/خطأ</li>
-                </ul>
+                <p>🔹 يتكون الاختبار من <strong>6 أسئلة</strong> (4 اختيار من متعدد + 2 صح/خطأ)</p>
                 <p>⏱️ <strong>مؤقت لكل سؤال: 40 ثانية</strong></p>
-                <p>🔹 عند بداية كل سؤال سيتم تشغيل صوت تنبيه.</p>
-                <p>🔹 عند انتهاء الوقت سيتم احتساب السؤال خطأ.</p>
+                <p>💾 <strong>النتائج تحفظ تلقائياً في Firebase Cloud</strong></p>
                 <p>🔹 درجة النجاح: <strong>50%</strong></p>
-                <p>💾 <strong>النتائج تحفظ تلقائياً في Firebase Cloud</strong> وتظهر فوراً في لوحة المعلمة</p>
             </div>
             <button id="startExamFromInstBtn">🚀 بدء الاختبار</button>
         `;
-    }
-
-    function attachInstructionsEvents() {
-        const startBtn = document.getElementById("startExamFromInstBtn");
-        if(startBtn) {
-            startBtn.onclick = () => {
-                appState.stage = "exam";
-                render();
-            };
-        }
-    }
-
-    function selectOption(value, element) {
-        document.querySelectorAll('.option-item').forEach(item => {
-            item.classList.remove('selected');
-        });
-        element.classList.add('selected');
-        appState.selectedOptionValue = value;
-        const radio = element.querySelector('input');
-        if(radio) radio.checked = true;
     }
 
     function renderCurrentQuestion() {
         const q = appState.questions[appState.currentQuestionIndex];
         const qNum = appState.currentQuestionIndex + 1;
         const total = appState.questions.length;
+        const circumference = 2 * Math.PI * 45;
         
         let optionsHtml = '';
         if(q.type === "mcq") {
             optionsHtml = q.options.map(opt => `
-                <div class="option-item" onclick="window.selectOptionFn('${opt.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', this)">
-                    <input type="radio" name="question" value="${opt.replace(/"/g, '&quot;')}" id="opt_${opt.replace(/\s/g, '')}">
-                    <label for="opt_${opt.replace(/\s/g, '')}">${opt}</label>
+                <div class="option-item" data-value="${opt.replace(/"/g, '&quot;')}">
+                    <input type="radio" name="question" value="${opt.replace(/"/g, '&quot;')}">
+                    <label>${opt}</label>
                 </div>
             `).join('');
         } else {
             optionsHtml = `
-                <div class="option-item" onclick="window.selectOptionFn('صحيح', this)">
-                    <input type="radio" name="question" value="صحيح" id="opt_true">
-                    <label for="opt_true">✅ صحيح</label>
-                </div>
-                <div class="option-item" onclick="window.selectOptionFn('خطأ', this)">
-                    <input type="radio" name="question" value="خطأ" id="opt_false">
-                    <label for="opt_false">❌ خطأ</label>
-                </div>
+                <div class="option-item" data-value="صحيح"><input type="radio" name="question" value="صحيح"><label>✅ صحيح</label></div>
+                <div class="option-item" data-value="خطأ"><input type="radio" name="question" value="خطأ"><label>❌ خطأ</label></div>
             `;
         }
         
-        const imageHtml = q.image ? `<div class="question-image"><img src="${q.image}" alt="صورة توضيحية" onerror="this.style.display='none'"></div>` : '';
-        
-        const circumference = 2 * Math.PI * 45;
-        const offset = circumference;
+        const imageHtml = q.image ? `<div class="question-image"><img src="${q.image}" onerror="this.style.display='none'"></div>` : '';
         
         return `
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${(appState.currentQuestionIndex / total) * 100}%"></div>
-            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${(appState.currentQuestionIndex / total) * 100}%"></div></div>
             <div class="question-window">
                 <div class="timer-container">
                     <div class="circular-timer">
                         <svg viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="45" class="timer-bg" stroke="#e0e0e0" stroke-width="8" fill="none"/>
-                            <circle cx="50" cy="50" r="45" class="timer-progress" stroke="#4caf50" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+                            <circle cx="50" cy="50" r="45" class="timer-progress" stroke="#4caf50" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"/>
                         </svg>
                         <div class="timer-text">40</div>
                     </div>
                 </div>
                 <div class="question-text">السؤال ${qNum} من ${total}<br>${q.text}</div>
                 ${imageHtml}
-                <div class="options" id="optionsContainer">
-                    ${optionsHtml}
-                </div>
-                <button id="submitAnswerBtn" style="margin-top: 1.5rem;">✓ تأكيد الإجابة</button>
+                <div class="options">${optionsHtml}</div>
+                <button id="submitAnswerBtn">✓ تأكيد الإجابة</button>
             </div>
         `;
-    }
-
-    function attachQuestionEvents() {
-        const submitBtn = document.getElementById("submitAnswerBtn");
-        
-        if(submitBtn) {
-            submitBtn.onclick = () => {
-                if(!appState.selectedOptionValue) {
-                    alert("❌ الرجاء اختيار إجابة قبل المتابعة");
-                    return;
-                }
-                
-                stopTimer();
-                stopAllSounds();
-                
-                const currentQ = appState.questions[appState.currentQuestionIndex];
-                const isCorrect = (appState.selectedOptionValue === currentQ.correct);
-                
-                if(isCorrect) {
-                    appState.score++;
-                    appState.feedbackType = "correct";
-                    playCorrectSound();
-                } else {
-                    appState.feedbackType = "wrong";
-                    playWrongSound();
-                }
-                
-                appState.answers[appState.currentQuestionIndex] = appState.selectedOptionValue;
-                appState.showFeedback = true;
-                appState.selectedOptionValue = null;
-                render();
-            };
-        }
-        
-        window.selectOptionFn = selectOption;
     }
 
     function renderFeedback() {
         let title = "", message = "";
         if(appState.feedbackType === "correct") {
-            const messages = ["احسنتي! 🎉", "رائع! 🌟", "ممتاز! 💪"];
+            const msgs = ["احسنتي! 🎉", "رائع! 🌟", "ممتاز! 💪"];
             title = "✓ إجابة صحيحة";
-            message = messages[Math.floor(Math.random() * messages.length)];
+            message = msgs[Math.floor(Math.random() * msgs.length)];
         } else if(appState.feedbackType === "wrong") {
-            const messages = ["للأسف إجابة خاطئة 📚", "ليس صحيحاً، حاولي التركيز 💡", "إجابة غير صحيحة، راجعي الدرس 📖"];
+            const msgs = ["للأسف إجابة خاطئة 📚", "ليس صحيحاً، حاولي التركيز 💡", "إجابة غير صحيحة، راجعي الدرس 📖"];
             title = "✗ إجابة خاطئة";
-            message = messages[Math.floor(Math.random() * messages.length)];
+            message = msgs[Math.floor(Math.random() * msgs.length)];
         } else {
-            const messages = ["⏰ انتهى الوقت!", "⌛ للأسف لم تتمكني من الإجابة في الوقت المحدد", "🕐 المرة القادمة انتبهي للوقت"];
+            const msgs = ["⏰ انتهى الوقت!", "⌛ لم تتمكني من الإجابة في الوقت المحدد", "🕐 المرة القادمة انتبهي للوقت"];
             title = "⌛ انتهاء الوقت";
-            message = messages[Math.floor(Math.random() * messages.length)];
+            message = msgs[Math.floor(Math.random() * msgs.length)];
         }
         
         return `
@@ -1090,89 +1049,43 @@
         `;
     }
 
-    function attachFeedbackEvents() {
-        const nextBtn = document.getElementById("nextQuestionBtn");
-        
-        if(nextBtn) {
-            nextBtn.onclick = async () => {
-                stopAllSounds();
-                appState.showFeedback = false;
-                appState.currentQuestionIndex++;
-                
-                if(appState.currentQuestionIndex >= appState.questions.length) {
-                    const total = appState.questions.length;
-                    const percentage = Math.round((appState.score / total) * 100);
-                    const answersDetail = {};
-                    appState.questions.forEach((q, idx) => {
-                        answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
-                    });
-                    
-                    // حفظ النتيجة في Firebase
-                    await addResultToFirebase(appState.studentName, appState.score, total, percentage, answersDetail);
-                    
-                    if(percentage >= 50) {
-                        playSuccessSound();
-                    } else {
-                        playFailSound();
-                    }
-                    
-                    appState.stage = "result";
-                    render();
-                } else {
-                    appState.selectedOptionValue = null;
-                    render();
-                }
-            };
-        }
-    }
-
     function renderResult() {
         const total = appState.questions.length;
         const percentage = Math.round((appState.score / total) * 100);
-        const passed = percentage >= 50;
-        
         return `
             <h1>🎉 نتيجة الاختبار الختامي</h1>
             <div class="result-area">
                 <p><strong>الطالبة:</strong> ${appState.studentName}</p>
                 <p><strong>الدرجة النهائية:</strong> ${appState.score} / ${total}</p>
                 <div class="score-badge">${percentage}%</div>
-                <p style="margin-top:12px; font-size:1.2rem;">${passed ? "✅ مبروك! اجتياز موفق 🌟" : "📚 دون المستوى، تحتاج مراجعة 💪"}</p>
+                <p style="margin-top:12px;">${percentage >= 50 ? "✅ مبروك! اجتياز موفق 🌟" : "📚 دون المستوى، تحتاج مراجعة 💪"}</p>
             </div>
-            <div class="footer-note">✅ تم حفظ نتيجتك في Firebase Cloud. يمكن للمعلمة الاطلاع عليها فوراً في لوحة التحكم.</div>
+            <div class="footer-note">✅ تم حفظ نتيجتك في Firebase Cloud. يمكن للمعلمة الاطلاع عليها فوراً.</div>
         `;
     }
 
     function openTeacherModal() {
-        const password = prompt("🔐 أدخل كلمة المرور للوصول إلى لوحة المعلمة:");
+        const password = prompt("🔐 أدخل كلمة المرور:");
         if(password === "226688") {
-            const modal = document.getElementById("teacherModal");
+            document.getElementById("teacherModal").style.display = "flex";
             refreshTeacherModal();
-            modal.style.display = "flex";
         } else {
-            alert("❌ كلمة المرور غير صحيحة! لا يمكنك الدخول.");
+            alert("❌ كلمة المرور غير صحيحة!");
         }
     }
 
     function bindGlobalEvents() {
-        const teacherBtn = document.getElementById("teacherDashboardBtn");
-        const closeBtn = document.getElementById("closeModalBtn");
-        const refreshBtn = document.getElementById("refreshTeacherView");
-        const resetBtn = document.getElementById("resetAllResultsBtn");
-        
-        if(teacherBtn) teacherBtn.onclick = openTeacherModal;
-        if(closeBtn) closeBtn.onclick = () => {
+        document.getElementById("teacherDashboardBtn")?.addEventListener("click", openTeacherModal);
+        document.getElementById("closeModalBtn")?.addEventListener("click", () => {
             document.getElementById("teacherModal").style.display = "none";
-        };
-        if(refreshBtn) refreshBtn.onclick = refreshTeacherModal;
-        if(resetBtn) {
-            resetBtn.onclick = async () => {
-                if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً من Firebase. هل أنت متأكدة؟")) {
-                    await deleteAllResults();
-                    refreshTeacherModal();
-                }
-            };
-        }
+        });
+        document.getElementById("refreshTeacherView")?.addEventListener("click", refreshTeacherModal);
+        document.getElementById("resetAllResultsBtn")?.addEventListener("click", async () => {
+            if(confirm("⚠️ هل أنت متأكدة من حذف جميع النتائج؟")) {
+                await deleteAllResults();
+                refreshTeacherModal();
+            }
+        });
         window.onclick = (e) => {
             const modal = document.getElementById("teacherModal");
             if(e.target === modal) modal.style.display = "none";
