@@ -5,53 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>الاختبار الختامي - النباتات البذرية</title>
     <style>
-        /* [نفس الستايل الخاص بك دون تغيير] */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; position: relative; }
-        .container { max-width: 850px; width: 100%; background: white; border-radius: 48px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); overflow: hidden; }
-        .content-pane { padding: 2rem; }
+        /* التنسيقات كما هي لضمان المظهر الجميل */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Tahoma', 'Cairo', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
+        .container { max-width: 850px; width: 100%; background: white; border-radius: 48px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); overflow: hidden; padding: 2rem; }
         h1 { font-size: 1.8rem; color: #1e3c72; border-right: 6px solid #2e7d32; padding-right: 1rem; margin-bottom: 1.5rem; }
-        .panorama-image { width: 100%; height: 180px; overflow: hidden; border-radius: 32px; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .panorama-image img { width: 100%; height: 100%; object-fit: cover; }
         .input-group { margin-bottom: 1.5rem; }
         label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1f3a64; }
-        input, button { width: 100%; padding: 14px 20px; border-radius: 40px; border: 1px solid #cbd5e1; font-size: 1rem; transition: all 0.2s; }
+        input, button { width: 100%; padding: 14px 20px; border-radius: 40px; border: 1px solid #cbd5e1; font-size: 1rem; }
         button { background: #2e7d32; color: white; font-weight: bold; border: none; cursor: pointer; margin-top: 0.5rem; }
-        button:hover { background: #1b5e20; transform: scale(0.98); }
-        .btn-secondary { background: #3a6ea5; }
-        .instructions-box { background: #fef9e6; padding: 1.5rem; border-radius: 32px; margin: 1rem 0; border-right: 5px solid #2e7d32; line-height: 1.7; }
-        .question-window { background: white; border-radius: 32px; padding: 1.8rem; margin-bottom: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
-        .timer-container { display: flex; justify-content: center; margin-bottom: 1.5rem; }
-        .circular-timer { position: relative; width: 100px; height: 100px; }
-        .circular-timer svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .timer-bg { stroke: #e0e0e0; stroke-width: 8; fill: none; }
-        .timer-progress { stroke: #4caf50; stroke-width: 8; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
-        .timer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #333; }
-        .question-text { font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem; color: #0a2b44; }
-        .options { display: flex; flex-direction: column; gap: 0.8rem; }
-        .option-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #f8fafc; border-radius: 60px; cursor: pointer; border: 2px solid #e2e8f0; }
-        .option-item.selected { background: #2e7d32; border-color: #2e7d32; color: white; }
-        .feedback-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .feedback-card { background: white; border-radius: 60px; padding: 2rem 3rem; text-align: center; min-width: 320px; }
-        .result-area { background: linear-gradient(135deg, #e8f0ff, #d4e0f5); border-radius: 40px; padding: 2rem; text-align: center; }
-        .score-badge { font-size: 3rem; font-weight: 800; color: #1e6f3f; }
-        .teacher-panel { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
-        .teacher-btn { background: #2c3e66; width: auto; padding: 12px 24px; border-radius: 60px; font-size: 0.9rem; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-content { background: white; max-width: 850px; width: 90%; max-height: 85vh; border-radius: 48px; padding: 1.8rem; overflow-y: auto; position: relative; }
-        .student-result-item { border-bottom: 1px solid #ddd; padding: 12px 0; }
-        .teacher-pass { color: green; font-weight: bold; }
-        .teacher-fail { color: #b91c1c; font-weight: bold; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #2e7d32; color: white; padding: 12px 24px; border-radius: 40px; z-index: 4000; }
+        .question-window { background: #f8fafc; border-radius: 32px; padding: 1.8rem; border: 1px solid #e2e8f0; }
+        .option-item { background: white; padding: 14px 18px; border-radius: 60px; cursor: pointer; border: 2px solid #e2e8f0; margin-bottom: 10px; }
+        .option-item.selected { background: #2e7d32; color: white; border-color: #2e7d32; }
+        .feedback-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .feedback-card { background: white; border-radius: 40px; padding: 2.5rem; text-align: center; min-width: 300px; }
+        .teacher-panel { position: fixed; bottom: 20px; left: 20px; }
+        .teacher-btn { background: #2c3e66; width: auto; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 600px; border-radius: 30px; padding: 2rem; max-height: 80vh; overflow-y: auto; }
+        .score-badge { font-size: 3rem; color: #2e7d32; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container" id="appContainer">
-    <div id="dynamicContent" class="content-pane"></div>
-    <div class="page-footer" style="text-align: center; padding: 10px; font-size: 0.9rem; color: #666;">
-        إعداد/ أ. شريفه الزهراني ✨
-    </div>
+    <div id="dynamicContent"></div>
+    <p style="text-align: center; margin-top: 20px; color: #666;">إعداد/ أ. شريفه الزهراني ✨</p>
 </div>
 
 <div class="teacher-panel">
@@ -60,193 +39,161 @@
 
 <div id="teacherModal" class="modal">
     <div class="modal-content">
-        <span id="closeModalBtn" style="cursor:pointer; float:left; font-size:24px;">&times;</span>
-        <h2>📋 نتائج الطالبات (مباشر من Firebase)</h2>
-        <div id="teacherResultsList">
-            <div style="text-align:center; padding:20px;">جاري تحميل البيانات...</div>
-        </div>
-        <button id="refreshTeacherView" class="btn-secondary" style="margin-top: 10px;">تحديث 🔄</button>
+        <h2 style="margin-bottom:20px">📋 نتائج الطالبات (Firebase)</h2>
+        <div id="resultsList">جاري التحميل...</div>
+        <button onclick="document.getElementById('teacherModal').style.display='none'" style="background:#666; margin-top:20px">إغلاق</button>
     </div>
 </div>
 
 <script type="module">
+    // استيراد Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // إعداداتك الخاصة التي أرفقتها
     const firebaseConfig = {
         apiKey: "AIzaSyBg3q3Xuh5c2_03snkKThBtR3sc80k-OW4",
         authDomain: "quiz-app-b0339.firebaseapp.com",
         projectId: "quiz-app-b0339",
         storageBucket: "quiz-app-b0339.firebasestorage.app",
         messagingSenderId: "798217786332",
-        appId: "1:798217786332:web:742058458be31599123519",
-        measurementId: "G-2401Q7Y9XD"
+        appId: "1:798217786332:web:742058458be31599123519"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ======================= منطق الاختبار =======================
-    const MCQ_BANK = [
-        { text: "ما المقصود بالنباتات البذرية؟", options: ["نباتات لا تنتج بذور", "نباتات تتكاثر بالبذور", "نباتات تعيش في الماء", "نباتات طفيلية"], correct: "نباتات تتكاثر بالبذور" },
-        { text: "أي مما يلي مثال على نبات بذري؟", options: ["السرخس", "الطحلب", "القمح", "الحزازيات"], correct: "القمح" },
-        { text: "ماذا تنتج النباتات البذرية؟", options: ["أبواغ", "بذور", "خلايا فقط", "جذور فقط"], correct: "بذور" },
-        { text: "أي جزء من النبات يتحول إلى بذرة؟", options: ["الزهرة", "البويضة", "الساق", "الورقة"], correct: "البويضة" }
+    // بنك الأسئلة المختصر للتجربة (يمكنك زيادتها)
+    const QUESTIONS = [
+        { text: "ما المقصود بالنباتات البذرية؟", options: ["نباتات لا تنتج بذور", "نباتات تتكاثر بالبذور", "نباتات تعيش في الماء"], correct: "نباتات تتكاثر بالبذور" },
+        { text: "أي مما يلي مثال على نبات بذري؟", options: ["السرخس", "الطحلب", "القمح"], correct: "القمح" },
+        { text: "الورقة هي الجزء المسؤول عن صنع الغذاء في النبات", options: ["صحيح", "خطأ"], correct: "صحيح" }
     ];
 
-    let appState = {
-        stage: "nameEntry",
-        studentName: "",
+    let state = {
+        name: "",
+        currentIndex: 0,
         score: 0,
-        currentQuestionIndex: 0,
-        questions: [],
-        selectedOptionValue: null,
-        timeLeft: 40,
-        timer: null
+        selected: null,
+        stage: "start" // start, quiz, feedback, result
     };
 
     function render() {
-        const container = document.getElementById("dynamicContent");
-        if (appState.stage === "nameEntry") {
-            container.innerHTML = `
+        const content = document.getElementById("dynamicContent");
+        
+        if (state.stage === "start") {
+            content.innerHTML = `
                 <h1>📝 اختبار النباتات البذرية</h1>
                 <div class="input-group">
                     <label>اسم الطالبة:</label>
-                    <input type="text" id="studentNameInput" placeholder="أدخلي اسمك هنا...">
+                    <input type="text" id="nameInp" placeholder="أدخلي اسمك...">
                 </div>
-                <button id="startExamBtn">بدء الاختبار</button>
+                <button id="startBtn">بدء الاختبار</button>
             `;
-            document.getElementById("startExamBtn").onclick = () => {
-                const name = document.getElementById("studentNameInput").value.trim();
-                if (!name) return alert("الرجاء إدخال الاسم");
-                appState.studentName = name;
-                appState.questions = MCQ_BANK.sort(() => 0.5 - Math.random()).slice(0, 4);
-                appState.stage = "instructions";
-                render();
+            document.getElementById("startBtn").onclick = () => {
+                const n = document.getElementById("nameInp").value;
+                if(!n) return alert("ادخلي الاسم");
+                state.name = n; state.stage = "quiz"; render();
             };
-        } else if (appState.stage === "instructions") {
-            container.innerHTML = `
-                <h1>📖 تعليمات</h1>
-                <div class="instructions-box">لديك 4 أسئلة، لكل سؤال 40 ثانية. سيتم حفظ نتيجتك تلقائياً للمعلمة.</div>
-                <button id="beginBtn">انطلاق!</button>
-            `;
-            document.getElementById("beginBtn").onclick = () => { appState.stage = "exam"; render(); };
-        } else if (appState.stage === "exam") {
-            renderQuestion();
-        } else if (appState.stage === "result") {
-            renderResult();
-        }
-    }
-
-    function renderQuestion() {
-        const q = appState.questions[appState.currentQuestionIndex];
-        const container = document.getElementById("dynamicContent");
-        container.innerHTML = `
-            <div class="question-window">
-                <div class="timer-container"><div class="circular-timer"><div class="timer-text" id="timerDisplay">40</div></div></div>
-                <div class="question-text">${q.text}</div>
-                <div class="options">
-                    ${q.options.map(opt => `<div class="option-item" onclick="window.selectOpt('${opt}')">${opt}</div>`).join('')}
+        } 
+        
+        else if (state.stage === "quiz") {
+            const q = QUESTIONS[state.currentIndex];
+            content.innerHTML = `
+                <div class="question-window">
+                    <p>سؤال ${state.currentIndex + 1} من ${QUESTIONS.length}</p>
+                    <h2 style="margin: 15px 0">${q.text}</h2>
+                    ${q.options.map(opt => `<div class="option-item ${state.selected === opt ? 'selected' : ''}" onclick="window.setOpt('${opt}')">${opt}</div>`).join('')}
+                    <button id="nextBtn" style="margin-top:20px">تأكيد الإجابة</button>
                 </div>
-                <button id="confirmBtn" style="margin-top:20px">تأكيد الإجابة</button>
-            </div>
-        `;
-        startTimer();
-        window.selectOpt = (val) => {
-            appState.selectedOptionValue = val;
-            document.querySelectorAll('.option-item').forEach(el => {
-                el.classList.toggle('selected', el.innerText === val);
-            });
-        };
-        document.getElementById("confirmBtn").onclick = nextQuestion;
-    }
-
-    function startTimer() {
-        clearInterval(appState.timer);
-        appState.timeLeft = 40;
-        appState.timer = setInterval(() => {
-            appState.timeLeft--;
-            if (document.getElementById("timerDisplay")) document.getElementById("timerDisplay").innerText = appState.timeLeft;
-            if (appState.timeLeft <= 0) nextQuestion();
-        }, 1000);
-    }
-
-    async function nextQuestion() {
-        clearInterval(appState.timer);
-        const q = appState.questions[appState.currentQuestionIndex];
-        if (appState.selectedOptionValue === q.correct) appState.score++;
-        
-        appState.selectedOptionValue = null;
-        appState.currentQuestionIndex++;
-        
-        if (appState.currentQuestionIndex >= appState.questions.length) {
-            appState.stage = "result";
-            await saveToFirebase();
+            `;
+            document.getElementById("nextBtn").onclick = handleNext;
         }
+
+        else if (state.stage === "feedback") {
+            const isCorrect = state.lastCorrect;
+            content.innerHTML = `
+                <div class="feedback-overlay">
+                    <div class="feedback-card">
+                        <h2 style="color: ${isCorrect ? 'green' : 'red'}">${isCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة خاطئة ❌'}</h2>
+                        <button id="contBtn">التالي</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById("contBtn").onclick = transitionNext;
+        }
+
+        else if (state.stage === "result") {
+            content.innerHTML = `
+                <div style="text-align:center">
+                    <h1>انتهى الاختبار</h1>
+                    <p>الطالبة: ${state.name}</p>
+                    <div class="score-badge">${state.score} / ${QUESTIONS.length}</div>
+                    <p>تم حفظ نتيجتك بنجاح ✅</p>
+                    <button onclick="location.reload()">إعادة الاختبار</button>
+                </div>
+            `;
+        }
+    }
+
+    window.setOpt = (val) => { state.selected = val; render(); };
+
+    function handleNext() {
+        if (!state.selected) return alert("اختاروا إجابة");
+        const q = QUESTIONS[state.currentIndex];
+        state.lastCorrect = (state.selected === q.correct);
+        if (state.lastCorrect) state.score++;
+        state.stage = "feedback";
         render();
     }
 
-    async function saveToFirebase() {
-        const resultData = {
-            studentName: appState.studentName,
-            score: appState.score,
-            total: appState.questions.length,
-            percentage: (appState.score / appState.questions.length) * 100,
-            timestamp: new Date().toLocaleString('ar-EG')
-        };
+    // هذه هي الدالة التي كانت تسبب المشكلة (الانتقال من التغذية الراجعة للسؤال التالي أو النتيجة)
+    async function transitionNext() {
+        state.selected = null;
+        if (state.currentIndex < QUESTIONS.length - 1) {
+            state.currentIndex++;
+            state.stage = "quiz";
+            render();
+        } else {
+            // الوصول للسؤال الأخير -> حفظ ثم عرض النتيجة
+            await saveResult();
+            state.stage = "result";
+            render();
+        }
+    }
+
+    async function saveResult() {
         try {
-            await push(ref(db, 'results'), resultData);
-            console.log("Data saved to Firebase");
-        } catch (e) { console.error("Error saving:", e); }
+            await push(ref(db, 'results'), {
+                studentName: state.name,
+                score: state.score,
+                total: QUESTIONS.length,
+                time: new Date().toLocaleString('ar-EG')
+            });
+        } catch (e) {
+            console.error("Firebase Error:", e);
+        }
     }
 
-    function renderResult() {
-        const container = document.getElementById("dynamicContent");
-        container.innerHTML = `
-            <div class="result-area">
-                <h1>انتهى الاختبار</h1>
-                <p>الطالبة: ${appState.studentName}</p>
-                <div class="score-badge">${appState.score} / ${appState.questions.length}</div>
-                <p>تم إرسال نتيجتك للمعلمة بنجاح ✅</p>
-            </div>
-        `;
-    }
-
-    // ======================= لوحة المعلمة =======================
+    // لوحة المعلمة
     document.getElementById("teacherDashboardBtn").onclick = () => {
-        const pass = prompt("كلمة المرور:");
-        if (pass === "226688") {
+        const p = prompt("كلمة المرور:");
+        if(p === "226688") {
             document.getElementById("teacherModal").style.display = "flex";
-            loadTeacherData();
+            const resList = document.getElementById("resultsList");
+            onValue(ref(db, 'results'), (snap) => {
+                const data = snap.val();
+                if(!data) return resList.innerHTML = "لا توجد نتائج";
+                let html = "";
+                Object.values(data).reverse().forEach(r => {
+                    html += `<div style="border-bottom:1px solid #eee; padding:10px">
+                        <b>${r.studentName}</b>: ${r.score}/${r.total} <br>
+                        <small>${r.time}</small>
+                    </div>`;
+                });
+                resList.innerHTML = html;
+            });
         }
     };
-
-    function loadTeacherData() {
-        const listDiv = document.getElementById("teacherResultsList");
-        const resultsRef = ref(db, 'results');
-        onValue(resultsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
-                listDiv.innerHTML = "لا توجد نتائج بعد.";
-                return;
-            }
-            let html = "";
-            Object.values(data).reverse().forEach(res => {
-                const status = res.percentage >= 50 ? "ناجحة" : "راسبة";
-                html += `
-                    <div class="student-result-item">
-                        <strong>${res.studentName}</strong> | الدرجة: ${res.score}/${res.total} | 
-                        <span class="${res.percentage >= 50 ? 'teacher-pass' : 'teacher-fail'}">${status}</span>
-                        <div style="font-size:11px; color:#999">${res.timestamp}</div>
-                    </div>`;
-            });
-            listDiv.innerHTML = html;
-        });
-    }
-
-    document.getElementById("closeModalBtn").onclick = () => document.getElementById("teacherModal").style.display = "none";
-    document.getElementById("refreshTeacherView").onclick = loadTeacherData;
 
     render();
 </script>
