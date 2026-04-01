@@ -841,9 +841,9 @@
                 const nextBtn = document.getElementById("nextQuestionBtn");
                 if(nextBtn) {
                     // إزالة أي أحداث سابقة
-                    const newNextBtn = nextBtn.cloneNode(true);
-                    nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
-                    newNextBtn.addEventListener("click", nextQuestion);
+                    if(nextBtn) {
+    nextBtn.onclick = nextQuestion;
+}
                 }
             } else {
                 container.innerHTML = renderCurrentQuestion();
