@@ -1058,39 +1058,52 @@
         `;
     }
 
-    function attachFeedbackEvents() {
-        const nextBtn = document.getElementById("nextQuestionBtn");
+ function attachFeedbackEvents() {
+    const nextBtn = document.getElementById("nextQuestionBtn");
+    
+    nextBtn.onclick = async () => {
+        stopAllSounds();
+        appState.showFeedback = false;
+        appState.currentQuestionIndex++;
         
-        nextBtn.onclick = async () => {
-            stopAllSounds();
-            appState.showFeedback = false;
-            appState.currentQuestionIndex++;
+        if (appState.currentQuestionIndex >= appState.questions.length) {
+            // انتهى الاختبار
+            const total = appState.questions.length;
+            const percentage = Math.round((appState.score / total) * 100);
+            const answersDetail = {};
+            appState.questions.forEach((q, idx) => {
+                answersDetail[idx] = { 
+                    question: q.text, 
+                    userAnswer: appState.answers[idx] || "انتهى الوقت", 
+                    correctAnswer: q.correct 
+                };
+            });
             
-            if(appState.currentQuestionIndex >= appState.questions.length) {
-                const total = appState.questions.length;
-                const percentage = Math.round((appState.score / total) * 100);
-                const answersDetail = {};
-                appState.questions.forEach((q, idx) => {
-                    answersDetail[idx] = { question: q.text, userAnswer: appState.answers[idx] || "انتهى الوقت", correctAnswer: q.correct };
-                });
-                
-                // حفظ النتيجة في الخادم السحابي
+            // حفظ النتيجة مع تفادي الأخطاء
+            try {
                 await addOrUpdateResult(appState.studentName, appState.score, total, percentage, answersDetail);
-                
-                if(percentage >= 50) {
-                    playSuccessSound();
-                } else {
-                    playFailSound();
-                }
-                
-                appState.stage = "result";
-                render();
-            } else {
-                appState.selectedOptionValue = null;
-                render();
+                console.log("✅ تم حفظ النتيجة بنجاح");
+            } catch (error) {
+                console.error("❌ فشل حفظ النتيجة:", error);
+                alert("⚠️ حدث خطأ في حفظ النتيجة، لكن سيتم عرض نتيجتك. يمكن للمعلمة تحديث الصفحة لاحقاً.");
             }
-        };
-    }
+            
+            // تشغيل صوت النتيجة بغض النظر عن الحفظ
+            if (percentage >= 50) {
+                playSuccessSound();
+            } else {
+                playFailSound();
+            }
+            
+            // الانتقال إلى صفحة النتيجة
+            appState.stage = "result";
+            render();
+        } else {
+            appState.selectedOptionValue = null;
+            render();
+        }
+    };
+}
 
     function renderResult() {
         const total = appState.questions.length;
