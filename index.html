@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>الاختبار الختامي - النباتات البذرية</title>
+    <!-- منع طلب favicon.ico -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
     <style>
         * {
             margin: 0;
@@ -421,7 +423,26 @@
 </div>
 
 <script>
-    // ======================= التخزين المحلي (يعمل فوراً) =======================
+    // منع بعض أخطاء الإضافات من الظهور في الكونسول (اختياري)
+    (function() {
+        const originalError = console.error;
+        console.error = function(...args) {
+            const message = args[0] || '';
+            // تجاهل أخطاء الإضافات الشائعة التي لا تؤثر على التطبيق
+            if (typeof message === 'string') {
+                if (message.includes('extInfoFrame') ||
+                    message.includes('Could not establish connection') ||
+                    message.includes('Sentry') ||
+                    message.includes('favicon.ico') ||
+                    message.includes('removeChild')) {
+                    return; // لا تعرض هذه الأخطاء
+                }
+            }
+            originalError.apply(console, args);
+        };
+    })();
+
+    // ======================= التخزين المحلي =======================
     const STORAGE_KEY = "teacher_exam_results_local";
     
     function loadResults() {
