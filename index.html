@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>الاختبار الختامي - النباتات البذرية</title>
     <style>
-        /* جميع الأنماط السابقة كما هي (لم يتم تغييرها) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, sans-serif;
         }
-
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -20,9 +18,7 @@
             justify-content: center;
             align-items: center;
             padding: 2rem 1rem;
-            position: relative;
         }
-
         .container {
             max-width: 850px;
             width: 100%;
@@ -31,11 +27,9 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-
         .content-pane {
             padding: 2rem;
         }
-
         h1 {
             font-size: 1.8rem;
             color: #1e3c72;
@@ -43,7 +37,6 @@
             padding-right: 1rem;
             margin-bottom: 1.5rem;
         }
-
         .panorama-image {
             width: 100%;
             height: 180px;
@@ -52,29 +45,24 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
         .panorama-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
-
         .panorama-image img:hover {
             transform: scale(1.02);
         }
-
         .input-group {
             margin-bottom: 1.5rem;
         }
-
         label {
             display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: #1f3a64;
         }
-
         input, button {
             width: 100%;
             padding: 14px 20px;
@@ -83,13 +71,11 @@
             font-size: 1rem;
             transition: all 0.2s;
         }
-
         input:focus {
             outline: none;
             border-color: #2e7d32;
             box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
         }
-
         button {
             background: #2e7d32;
             color: white;
@@ -98,16 +84,13 @@
             cursor: pointer;
             margin-top: 0.5rem;
         }
-
         button:hover {
             background: #1b5e20;
             transform: scale(0.98);
         }
-
         .btn-secondary {
             background: #3a6ea5;
         }
-        
         .instructions-box {
             background: #fef9e6;
             padding: 1.5rem;
@@ -116,7 +99,6 @@
             border-right: 5px solid #2e7d32;
             line-height: 1.7;
         }
-
         .question-window {
             background: white;
             border-radius: 32px;
@@ -126,31 +108,26 @@
             border: 1px solid #e9eef3;
             position: relative;
         }
-
         .timer-container {
             display: flex;
             justify-content: center;
             margin-bottom: 1.5rem;
         }
-
         .circular-timer {
             position: relative;
             width: 100px;
             height: 100px;
         }
-
         .circular-timer svg {
             width: 100%;
             height: 100%;
             transform: rotate(-90deg);
         }
-
         .timer-bg {
             stroke: #e0e0e0;
             stroke-width: 8;
             fill: none;
         }
-
         .timer-progress {
             stroke: #4caf50;
             stroke-width: 8;
@@ -158,15 +135,12 @@
             stroke-linecap: round;
             transition: stroke-dashoffset 0.1s linear;
         }
-
         .timer-progress.warning {
             stroke: #ff9800;
         }
-
         .timer-progress.danger {
             stroke: #f44336;
         }
-
         .timer-text {
             position: absolute;
             top: 50%;
@@ -176,33 +150,27 @@
             font-weight: bold;
             color: #333;
         }
-
         .timer-text.warning {
             color: #ff9800;
         }
-
         .timer-text.danger {
             color: #f44336;
             animation: pulse 0.5s ease-in-out infinite;
         }
-
         @keyframes pulse {
             0%, 100% { transform: translate(-50%, -50%) scale(1); }
             50% { transform: translate(-50%, -50%) scale(1.1); }
         }
-
         .question-text {
             font-weight: 700;
             font-size: 1.2rem;
             margin-bottom: 1rem;
             color: #0a2b44;
         }
-
         .question-image {
             text-align: center;
             margin: 1rem 0;
         }
-
         .question-image img {
             max-width: 100%;
             max-height: 250px;
@@ -210,14 +178,12 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             object-fit: cover;
         }
-
         .options {
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
             margin-top: 1.5rem;
         }
-
         .option-item {
             display: flex;
             align-items: center;
@@ -229,22 +195,18 @@
             transition: all 0.2s;
             border: 2px solid #e2e8f0;
         }
-
         .option-item:hover {
             background: #e8f5e9;
             border-color: #2e7d32;
             transform: scale(1.02);
         }
-
         .option-item.selected {
             background: #2e7d32;
             border-color: #2e7d32;
         }
-
         .option-item.selected label {
             color: white;
         }
-
         .option-item input {
             width: 20px;
             height: 20px;
@@ -252,7 +214,6 @@
             cursor: pointer;
             accent-color: #2e7d32;
         }
-
         .option-item label {
             margin: 0;
             font-weight: normal;
@@ -261,7 +222,6 @@
             font-size: 1rem;
             line-height: 1.4;
         }
-
         .feedback-overlay {
             position: fixed;
             top: 0;
@@ -275,7 +235,6 @@
             z-index: 2000;
             animation: fadeIn 0.3s ease;
         }
-
         .feedback-card {
             background: white;
             border-radius: 60px;
@@ -285,32 +244,26 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
             animation: slideUp 0.3s ease;
         }
-
         .feedback-card.correct {
             background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
             border: 3px solid #2e7d32;
         }
-
         .feedback-card.wrong {
             background: linear-gradient(135deg, #feb2b2 0%, #ff6b6b 100%);
             border: 3px solid #c62828;
         }
-
         .feedback-card.timeout {
             background: linear-gradient(135deg, #ffb347 0%, #ff6b6b 100%);
             border: 3px solid #e67e22;
         }
-
         .feedback-card h3 {
             font-size: 2rem;
             margin-bottom: 1rem;
         }
-
         .feedback-card p {
             font-size: 1.2rem;
             margin-bottom: 1.5rem;
         }
-
         .next-btn {
             background: #1e3c72;
             padding: 12px 30px;
@@ -320,47 +273,39 @@
             color: white;
             cursor: pointer;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-
         @keyframes slideUp {
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
-
         .timer-shake {
             animation: shake 0.3s ease-in-out;
         }
-
         .result-area {
             background: linear-gradient(135deg, #e8f0ff, #d4e0f5);
             border-radius: 40px;
             padding: 2rem;
             text-align: center;
         }
-
         .score-badge {
             font-size: 3rem;
             font-weight: 800;
             color: #1e6f3f;
         }
-
         .teacher-panel {
             position: fixed;
             bottom: 20px;
             left: 20px;
             z-index: 1000;
         }
-
         .teacher-btn {
             background: #2c3e66;
             width: auto;
@@ -368,7 +313,6 @@
             border-radius: 60px;
             font-size: 0.9rem;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -381,7 +325,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background: white;
             max-width: 850px;
@@ -391,7 +334,6 @@
             padding: 1.8rem;
             overflow-y: auto;
         }
-
         .close-modal {
             position: absolute;
             left: 20px;
@@ -406,36 +348,30 @@
             justify-content: center;
             border-radius: 50%;
         }
-
         .student-result-item {
             border-bottom: 1px solid #ddd;
             padding: 12px 0;
         }
-
         .teacher-pass { color: green; font-weight: bold; }
         .teacher-fail { color: #b91c1c; font-weight: bold; }
-
         .progress-bar {
             background: #e0e0e0;
             border-radius: 20px;
             height: 10px;
             margin: 1rem 0;
         }
-
         .progress-fill {
             background: #2e7d32;
             border-radius: 20px;
             height: 100%;
             transition: width 0.3s;
         }
-
         .footer-note {
             font-size: 0.75rem;
             text-align: center;
             margin-top: 20px;
             color: #5f6c80;
         }
-
         .page-footer {
             text-align: center;
             padding: 1rem 0 0.8rem;
@@ -447,12 +383,10 @@
             letter-spacing: 0.5px;
             background: white;
         }
-
         .page-footer span {
             color: #2e7d32;
             font-weight: 600;
         }
-
         .loading {
             text-align: center;
             padding: 20px;
@@ -482,7 +416,7 @@
         </div>
         <button id="refreshTeacherView" class="btn-secondary" style="margin-top: 10px;">تحديث النتائج 🔄</button>
         <button id="resetAllResultsBtn" style="background:#c0392b; margin-top: 10px;">🗑 إعادة ضبط جميع النتائج</button>
-        <p class="footer-note" style="margin-top:10px;">📌 ملاحظة: النتائج تُحفظ محلياً على هذا الجهاز فقط.</p>
+        <p class="footer-note" style="margin-top:10px;">📌 النتائج تُحفظ محلياً على هذا الجهاز فقط.</p>
     </div>
 </div>
 
@@ -490,8 +424,7 @@
     // ======================= التخزين المحلي (يعمل فوراً) =======================
     const STORAGE_KEY = "teacher_exam_results_local";
     
-    // تحميل النتائج من localStorage
-    function loadResultsFromCloud() {
+    function loadResults() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if(stored) {
             try { return JSON.parse(stored); } catch(e) { return []; }
@@ -499,15 +432,13 @@
         return [];
     }
     
-    // حفظ النتائج إلى localStorage
-    function saveResultsToCloud(results) {
+    function saveResults(results) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
         return true;
     }
     
-    // دالة لإضافة أو تحديث نتيجة طالبة
     function addOrUpdateResult(studentName, score, total, percentage, answersDetail) {
-        let allResults = loadResultsFromCloud();
+        let allResults = loadResults();
         const existingIndex = allResults.findIndex(r => r.studentName === studentName);
         const newEntry = {
             studentName: studentName,
@@ -522,14 +453,13 @@
         } else {
             allResults.push(newEntry);
         }
-        saveResultsToCloud(allResults);
+        saveResults(allResults);
         return true;
     }
     
-    // دالة لإعادة ضبط جميع النتائج
-    function resetAllResultsCloud() {
+    function resetAllResults() {
         if(confirm("⚠️ تحذير: سيتم حذف جميع نتائج الطالبات نهائياً. هل أنت متأكدة؟")) {
-            saveResultsToCloud([]);
+            saveResults([]);
             alert("✅ تم إعادة ضبط جميع النتائج بنجاح!");
             if(document.getElementById("teacherResultsList")) refreshTeacherModal();
             return true;
@@ -537,18 +467,14 @@
         return false;
     }
     
-    // دالة لتحديث عرض لوحة المعلمة
     function refreshTeacherModal() {
         const container = document.getElementById("teacherResultsList");
         if(!container) return;
-        
-        const allResults = loadResultsFromCloud();
-        
+        const allResults = loadResults();
         if(allResults.length === 0) {
             container.innerHTML = "<p>📭 لا توجد نتائج مسجلة بعد. بعد أن تؤدي أي طالبة الاختبار ستظهر هنا.</p>";
             return;
         }
-        
         let html = `<div><strong>📊 عدد الطالبات: ${allResults.length}</strong></div>`;
         const sorted = [...allResults].reverse();
         sorted.forEach(res => {
@@ -562,7 +488,7 @@
         container.innerHTML = html;
     }
 
-    // ======================= بنك الأسئلة (نفس الكود السابق) =======================
+    // ======================= بنك الأسئلة =======================
     const MCQ_BANK = [
         { text: "ما المقصود بالنباتات البذرية؟", options: ["نباتات لا تنتج بذور", "نباتات تتكاثر بالبذور", "نباتات تعيش في الماء", "نباتات طفيلية"], correct: "نباتات تتكاثر بالبذور", image: "IMG/1.jpg" },
         { text: "أي مما يلي مثال على نبات بذري؟", options: ["السرخس", "الطحلب", "القمح", "الحزازيات"], correct: "القمح", image: "IMG/2.jpg" },
@@ -680,7 +606,7 @@
     function playWarningSound() { playSound("Sound/warning.mp3", 0.6); }
     function playTimeoutSound() { playSound("Sound/timeout.mp3", 0.7); }
 
-    // ======================= منطق التطبيق (نفس الكود السابق) =======================
+    // ======================= منطق التطبيق =======================
     let appState = {
         stage: "nameEntry",
         studentName: "",
@@ -922,7 +848,6 @@
             appState.currentQuestionIndex++;
             
             if (appState.currentQuestionIndex >= appState.questions.length) {
-                // انتهى الاختبار
                 const total = appState.questions.length;
                 const percentage = Math.round((appState.score / total) * 100);
                 const answersDetail = {};
@@ -933,11 +858,8 @@
                         correctAnswer: q.correct 
                     };
                 });
-                // حفظ النتيجة (محلياً - يعمل فوراً)
                 addOrUpdateResult(appState.studentName, appState.score, total, percentage, answersDetail);
-                // تشغيل صوت النتيجة
                 if (percentage >= 50) playSuccessSound(); else playFailSound();
-                // الانتقال إلى صفحة النتيجة
                 appState.stage = "result";
                 render();
             } else {
@@ -976,7 +898,7 @@
         document.getElementById("teacherDashboardBtn").onclick = openTeacherModal;
         document.getElementById("closeModalBtn").onclick = () => { document.getElementById("teacherModal").style.display = "none"; };
         document.getElementById("refreshTeacherView").onclick = refreshTeacherModal;
-        document.getElementById("resetAllResultsBtn").onclick = () => { resetAllResultsCloud(); refreshTeacherModal(); };
+        document.getElementById("resetAllResultsBtn").onclick = () => { resetAllResults(); refreshTeacherModal(); };
         window.onclick = (e) => { const modal = document.getElementById("teacherModal"); if(e.target === modal) modal.style.display = "none"; };
     }
 
